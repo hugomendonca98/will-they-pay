@@ -1,0 +1,24 @@
+# Copy this file to `.dev.vars` (gitignored) before `pnpm dev` or `pnpm preview`.
+# `.dev.vars` is loaded by Wrangler / OpenNext as Worker secrets+vars locally.
+#
+# NEVER put real tokens in git. Production values go in Cloudflare with:
+#   pnpm wrangler secret put MERCADOPAGO_ACCESS_TOKEN
+#   pnpm wrangler secret put MERCADOPAGO_WEBHOOK_SECRET
+
+# Required by OpenNext local integration (keep as development for `next dev`).
+NEXTJS_ENV=development
+
+# Public origin of this app (no trailing slash). Used for Checkout Pro
+# back_urls and the webhook notification_url.
+APP_URL=http://localhost:3000
+
+# "true" uses sandbox_init_point from Mercado Pago. Use "false" only in live.
+MERCADOPAGO_SANDBOX=true
+
+# Access token from Mercado Pago Developers → Your integrations → Credentials.
+# Test token (TEST-...) locally; production token only as a Worker secret.
+MERCADOPAGO_ACCESS_TOKEN=replace-with-your-test-access-token
+
+# Webhook signing secret from Mercado Pago Developers → Webhooks → Configure.
+# Reveal the secret in the dashboard; never commit the real value.
+MERCADOPAGO_WEBHOOK_SECRET=replace-with-your-webhook-secret
