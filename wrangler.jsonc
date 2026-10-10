@@ -3,10 +3,7 @@
   "name": "will-they-pay",
   "main": ".open-next/worker.js",
   "compatibility_date": "2026-10-07",
-  "compatibility_flags": [
-    "nodejs_compat",
-    "global_fetch_strictly_public"
-  ],
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS",
@@ -26,7 +23,6 @@
   "vars": {
     "APP_URL": "http://localhost:3000",
     "MERCADOPAGO_SANDBOX": "true",
-    "DEMO_MODE": "true"
   },
   "d1_databases": [
     {
@@ -34,8 +30,9 @@
       "database_name": "will-they-pay",
       // Placeholder — not a real Cloudflare resource. After
       // `pnpm wrangler d1 create will-they-pay`, replace this with the
-      // printed database_id (or set CLOUDFLARE_D1_DATABASE_ID in your shell
-      // / CI secrets and keep this placeholder locally).
+      // printed database_id for a private deploy, or keep the placeholder
+      // and set GitHub secret D1_DATABASE_ID (CI rewrites this file on the
+      // runner and never commits the real id).
       "database_id": "00000000-0000-0000-0000-000000000000",
       "migrations_dir": "drizzle",
     },

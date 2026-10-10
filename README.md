@@ -15,7 +15,7 @@ This repository is public. **Never commit real tokens, secrets, account IDs, or 
 - Checkout Pro flow: creates an order in D1, creates a Mercado Pago preference, redirects to checkout, and handles `success` / `failure` / `pending` return pages.
 - `POST /api/webhooks/mercadopago` with `x-signature` validation (HMAC-SHA256) and order/payment updates in D1.
 - Typed payment layer, Vitest + MSW (no real Mercado Pago calls in tests).
-- GitHub Actions CI: lint, typecheck, and tests.
+- GitHub Actions CI: lint, typecheck, and tests; optional auto-deploy to Cloudflare Workers on push to `main`.
 
 UI copy is **Brazilian Portuguese**. Code, identifiers, and comments are **English**.
 
@@ -159,7 +159,7 @@ The app treats placeholder values (e.g. `replace-with-your-test-access-token`) a
 pnpm wrangler d1 create will-they-pay
 ```
 
-Copy the printed `database_id` into `wrangler.jsonc` under `d1_databases` (do not commit real IDs if this repo is a shared template — each deployment can use its own database).
+Copy the printed `database_id` into `wrangler.jsonc` under `d1_databases` for a private fork, or keep the placeholder and set GitHub secret `D1_DATABASE_ID` for auto-deploy (see [Automatic deploy](#automatic-deploy-to-cloudflare-workers)). Do not commit real IDs in a shared template.
 
 After schema changes:
 
@@ -221,7 +221,7 @@ Demo plan prices are defined in `src/content/site.ts` (`site.pricing.plans`); th
 7. In the Mercado Pago panel, configure the webhook URL for your **deployed** domain (see [Mercado Pago webhook](#mercado-pago-webhook-manual--not-automatic)).
 8. When going live, set production credentials, set `MERCADOPAGO_SANDBOX` to `false`, and redeploy.
 
-For CI deploy jobs, store `CLOUDFLARE_API_TOKEN`, account ID, and D1 IDs in **GitHub Actions secrets** — never in this repository.
+To publish on every push to `main` instead of running these steps locally, see [Automatic deploy](#automatic-deploy-to-cloudflare-workers).
 
 ## Customize branding and copy
 
@@ -252,13 +252,58 @@ docs/                 README banners and docs assets
 
 ## Continuous integration
 
-Workflow: `.github/workflows/ci.yml` — on push to `main` and on pull requests:
+Workflow: `.github/workflows/ci.yml`.
+
+### Quality checks
+
+On every push to `main` and on pull requests:
 
 - `pnpm run lint`
 - `pnpm run typecheck`
 - `pnpm run test`
 
-No Mercado Pago or Cloudflare credentials are required for CI.
+No Mercado Pago or Cloudflare credentials are required for this job.
+
+### Automatic deploy to Cloudflare Workers
+
+After the quality job **passes**, a deploy job runs **only on push to `main`** (not on pull requests). It is **skipped** (the workflow stays green) when the Cloudflare GitHub secrets are missing — that is expected for forks and clones.
+
+Do **not** put Mercado Pago tokens in GitHub. Keep using `pnpm wrangler secret put` on the Worker. Wrangler deploys never delete Worker secrets (`MERCADOPAGO_ACCESS_TOKEN`, `MERCADOPAGO_WEBHOOK_SECRET`).
+
+**GitHub Actions secrets** (Settings → Secrets and variables → Actions → Secrets):
+
+| Secret | Purpose |
+| --- | --- |
+| `CLOUDFLARE_API_TOKEN` | Wrangler authentication |
+| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare account that owns the Worker and D1 database |
+| `D1_DATABASE_ID` | Production D1 UUID. Injected into `wrangler.jsonc` on the runner only — never committed |
+
+**GitHub Actions variables** (Settings → Secrets and variables → Actions → Variables). A secret of the same name also works; variables are the better fit because these values are not credentials:
+
+| Variable | Purpose |
+| --- | --- |
+| `APP_URL` | Public HTTPS origin of the Worker (no trailing slash), e.g. `https://will-they-pay.<subdomain>.workers.dev`. **Required** when auto-deploy is enabled. CI rewrites `vars.APP_URL` in `wrangler.jsonc` before deploy so Wrangler does not publish the committed `http://localhost:3000` default. |
+| `DEMO_MODE` | Optional. `true` shows the public-demo banner; `false` forces it off. When unset, CI does not add `DEMO_MODE` to the Wrangler config and passes `--keep-vars`, so a dashboard value is left as-is. |
+| `CLOUDFLARE_AUTO_DEPLOY` | Optional kill switch. Set to `false` to skip auto-deploy even when the Cloudflare secrets exist. |
+
+**Minimum API token permissions**
+
+Create a token at [Account API tokens](https://dash.cloudflare.com/profile/api-tokens):
+
+1. Use the **Edit Cloudflare Workers** template (Workers Scripts Edit + Account Settings Read).
+2. Add **Account → D1 → Edit** so remote migrations can run.
+
+**Enable:** create the three secrets and `APP_URL`, then push to `main`.
+
+**Disable:** set `CLOUDFLARE_AUTO_DEPLOY` to `false`, or delete all three Cloudflare secrets. If only some of those secrets are set, the job **fails** so a partial setup is visible.
+
+The deploy job:
+
+1. Rewrites `database_id`, `APP_URL`, and optionally `DEMO_MODE` in `wrangler.jsonc` on the runner (nothing sensitive is committed).
+2. Applies remote D1 migrations (`pnpm run db:migrate:remote`). Already-applied SQL is skipped — safe and idempotent.
+3. Builds with OpenNext and deploys with `opennextjs-cloudflare deploy -- --keep-vars` so dashboard-only vars are not wiped, while the rewritten `APP_URL` is what Wrangler uploads.
+
+Deploys share a concurrency group so two pushes cannot publish at the same time.
 
 ## Troubleshooting
 
