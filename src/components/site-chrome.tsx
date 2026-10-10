@@ -81,12 +81,6 @@ export function SiteHeader() {
         <MarketingNavLinks className="hidden lg:flex" />
         <div className="flex items-center gap-2">
           <ThemeToggle />
-          <Link
-            href="/#contato"
-            className="text-muted-foreground hover:text-foreground hidden text-sm font-medium sm:inline"
-          >
-            Entrar
-          </Link>
           <Button
             size="default"
             className="hidden h-10 px-4 sm:inline-flex"
@@ -117,13 +111,6 @@ export function SiteHeader() {
                 >
                   Começar agora
                   <ArrowRight data-icon="inline-end" />
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  render={<Link href="/#contato" onClick={() => setMenuOpen(false)} />}
-                >
-                  Entrar
                 </Button>
               </div>
             </SheetContent>
