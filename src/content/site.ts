@@ -221,7 +221,7 @@ export const site = {
       {
         question: "É de graça?",
         answer:
-          "Sim. O código é aberto no GitHub. Você só paga o que usar na Cloudflare e as taxas do Mercado Pago.",
+          "Sim. O código é aberto no GitHub sob a licença MIT: você pode usar, modificar e lançar produtos com ele, inclusive pagos. Só paga o que usar na Cloudflare e as taxas do Mercado Pago.",
       },
       {
         question: "Como troco os textos e a marca?",
