@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
+import { DemoBanner } from "@/components/demo-banner";
 import { SiteFooter, SiteHeader } from "@/components/site-chrome";
+import { isDemoModeEnabled } from "@/lib/demo-mode";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { site } from "@/content/site";
@@ -30,11 +32,13 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: ReactNode;
 }>) {
+  const demoMode = await isDemoModeEnabled();
+
   return (
     <html
       lang="pt-BR"
@@ -43,7 +47,8 @@ export default function RootLayout({
     >
       <body className="flex min-h-full flex-col">
         <ThemeProvider>
-          <SiteHeader />
+          {demoMode ? <DemoBanner /> : null}
+          <SiteHeader demoModeActive={demoMode} />
           {children}
           <SiteFooter />
           <Toaster />
