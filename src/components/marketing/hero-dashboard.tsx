@@ -1,6 +1,11 @@
+import {
+  IconCheck,
+  IconPix,
+  IconBoleto,
+  IconRaio,
+} from "@/components/icons";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { Check, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const CHART_HEIGHTS = [38, 52, 44, 60, 48, 72, 56, 88];
@@ -14,7 +19,7 @@ export function HeroDashboardPreview() {
           <p className="text-muted-foreground text-xs">Últimos 30 dias</p>
         </div>
         <Badge className="bg-primary text-primary-foreground gap-1 border-transparent">
-          <Zap className="size-3" />
+          <IconRaio decorative className="size-3" />
           Ao vivo
         </Badge>
       </div>
@@ -54,13 +59,16 @@ export function HeroDashboardPreview() {
               </span>
               <div>
                 <p className="text-sm font-medium">Ana Souza</p>
-                <p className="text-muted-foreground text-xs">Pix · Plano Pro</p>
+                <p className="text-muted-foreground flex items-center gap-1 text-xs">
+                  <IconPix decorative className="size-3.5" />
+                  Pix · Plano Pro
+                </p>
               </div>
             </div>
             <div className="text-right">
               <p className="text-sm font-semibold">R$ 97,00</p>
               <Badge variant="success" className="mt-1">
-                <Check />
+                <IconCheck decorative className="size-3" />
                 Aprovado
               </Badge>
             </div>
@@ -72,7 +80,10 @@ export function HeroDashboardPreview() {
               </span>
               <div>
                 <p className="text-sm font-medium">Bruno Lima</p>
-                <p className="text-muted-foreground text-xs">Boleto · Plano Starter</p>
+                <p className="text-muted-foreground flex items-center gap-1 text-xs">
+                  <IconBoleto decorative className="size-3.5" />
+                  Boleto · Plano Starter
+                </p>
               </div>
             </div>
             <div className="text-right">

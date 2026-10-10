@@ -20,6 +20,14 @@ export const metadata: Metadata = {
   title: "Will They Pay — SaaS para o Brasil",
   description:
     "Template de SaaS com Next.js, Cloudflare Workers, D1, captura de leads e checkout integrado.",
+  manifest: "/site.webmanifest",
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
+    ],
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 export default function RootLayout({

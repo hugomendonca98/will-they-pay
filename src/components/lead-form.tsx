@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { ArrowRight, Lock } from "lucide-react";
+import { IconCadeado, IconSetaDireita } from "@/components/icons";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -104,10 +104,12 @@ export function LeadForm() {
 
           <Button type="submit" disabled={pending} className="h-11 w-full">
             {pending ? "Enviando..." : "Enviar mensagem"}
-            {!pending ? <ArrowRight data-icon="inline-end" /> : null}
+            {!pending ? (
+              <IconSetaDireita decorative className="size-4" data-icon="inline-end" />
+            ) : null}
           </Button>
           <p className="text-muted-foreground flex items-start gap-2 text-xs">
-            <Lock className="mt-0.5 size-3.5 shrink-0" />
+            <IconCadeado decorative className="mt-0.5 size-3.5 shrink-0" />
             Ao enviar, você concorda com nossa política de privacidade. Não compartilhamos
             seus dados com terceiros.
           </p>

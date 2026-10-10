@@ -1,17 +1,19 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import {
-  ArrowLeft,
-  ArrowRight,
-  Check,
-  CircleX,
-  Clock,
-  Info,
-  Lock,
-  Mail,
-  MessageSquare,
-  RotateCcw,
-} from "lucide-react";
+  IconAlerta,
+  IconBoleto,
+  IconCadeado,
+  IconCartao,
+  IconCheck,
+  IconEmail,
+  IconPagamentoAprovado,
+  IconPagamentoPendente,
+  IconPagamentoRecusado,
+  IconPix,
+  IconSetaDireita,
+  IconSuporte,
+} from "@/components/icons";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -32,10 +34,33 @@ function firstQueryValue(value: string | string[] | undefined): string | undefin
   return value;
 }
 
-function formatPaymentMethod(status: string | undefined, outcome: CheckoutOutcome) {
-  if (outcome === "success") return "Pix";
-  if (outcome === "pending") return "Boleto bancário";
-  return status ?? "Cartão";
+function PaymentMethodDisplay({
+  outcome,
+}: {
+  outcome: CheckoutOutcome;
+}) {
+  if (outcome === "success") {
+    return (
+      <span className="inline-flex items-center gap-1.5">
+        <IconPix decorative className="size-4" />
+        Pix
+      </span>
+    );
+  }
+  if (outcome === "pending") {
+    return (
+      <span className="inline-flex items-center gap-1.5">
+        <IconBoleto decorative className="size-4" />
+        Boleto bancário
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1.5">
+      <IconCartao decorative className="size-4" />
+      Cartão
+    </span>
+  );
 }
 
 function SummaryRow({ label, value }: { label: string; value: ReactNode }) {
@@ -63,8 +88,6 @@ async function CheckoutResultDetails({
       : outcome === "pending"
         ? "MP-1234567891"
         : undefined);
-  const status =
-    firstQueryValue(params.status) ?? firstQueryValue(params.collection_status);
 
   const planLabel = "Pro (mensal)";
   const amountLabel = "R$ 97,00";
@@ -75,7 +98,7 @@ async function CheckoutResultDetails({
       <SummaryRow label="Valor" value={amountLabel} />
       <SummaryRow
         label="Forma de pagamento"
-        value={formatPaymentMethod(status, outcome)}
+        value={<PaymentMethodDisplay outcome={outcome} />}
       />
       {paymentId ? (
         <SummaryRow label="ID do pagamento" value={paymentId} />
@@ -85,17 +108,17 @@ async function CheckoutResultDetails({
         value={
           outcome === "success" ? (
             <Badge variant="success">
-              <Check />
+              <IconCheck decorative className="size-3" />
               Aprovado
             </Badge>
           ) : outcome === "pending" ? (
             <Badge variant="warning">
-              <Clock />
+              <IconPagamentoPendente decorative className="size-3" />
               Em análise
             </Badge>
           ) : (
             <Badge variant="destructive">
-              <CircleX />
+              <IconPagamentoRecusado decorative className="size-3" />
               Recusado
             </Badge>
           )
@@ -107,26 +130,12 @@ async function CheckoutResultDetails({
 
 function OutcomeIcon({ outcome }: { outcome: CheckoutOutcome }) {
   if (outcome === "success") {
-    return (
-      <span className="mx-auto flex size-16 items-center justify-center rounded-full bg-success text-success-foreground">
-        <Check className="size-8" strokeWidth={2.5} />
-      </span>
-    );
+    return <IconPagamentoAprovado className="mx-auto size-16" />;
   }
   if (outcome === "pending") {
-    return (
-      <span className="mx-auto flex size-16 items-center justify-center rounded-full bg-warning/20 text-warning-foreground">
-        <Clock className="size-8" />
-      </span>
-    );
+    return <IconPagamentoPendente className="mx-auto size-16" />;
   }
-  return (
-    <span className="mx-auto flex size-16 items-center justify-center rounded-full bg-destructive/10">
-      <span className="flex size-10 items-center justify-center rounded-full bg-destructive text-destructive-foreground">
-        <CircleX className="size-6" />
-      </span>
-    </span>
-  );
+  return <IconPagamentoRecusado className="mx-auto size-16" />;
 }
 
 const COPY: Record<
@@ -176,7 +185,7 @@ export function CheckoutResultPage({
 
           {outcome === "pending" ? (
             <Alert variant="warning" className="text-left">
-              <Info />
+              <IconAlerta decorative className="size-4" />
               <AlertTitle>Pix ou boleto podem levar um tempo</AlertTitle>
               <AlertDescription>
                 Pagamentos via Pix costumam ser confirmados em poucos minutos. Boletos são
@@ -192,7 +201,10 @@ export function CheckoutResultPage({
               <ul className="space-y-2.5">
                 {FAILURE_REASONS.map((reason) => (
                   <li key={reason} className="flex gap-2 text-sm">
-                    <CircleX className="mt-0.5 size-4 shrink-0 text-destructive" />
+                    <IconPagamentoRecusado
+                      decorative
+                      className="mt-0.5 size-4 shrink-0 text-destructive"
+                    />
                     {reason}
                   </li>
                 ))}
@@ -212,12 +224,12 @@ export function CheckoutResultPage({
             {outcome === "success" ? (
               <Button className="h-11 w-full" render={<Link href="/#contato" />}>
                 Acessar minha conta
-                <ArrowRight data-icon="inline-end" />
+                <IconSetaDireita decorative className="size-4" data-icon="inline-end" />
               </Button>
             ) : outcome === "failure" ? (
               <>
                 <Button className="h-11 w-full" render={<Link href="/#precos" />}>
-                  <RotateCcw data-icon="inline-start" />
+                  <IconSetaDireita decorative className="size-4" data-icon="inline-start" />
                   Tentar novamente
                 </Button>
                 <Button
@@ -225,13 +237,17 @@ export function CheckoutResultPage({
                   className="h-11 w-full"
                   render={<Link href="/#contato" />}
                 >
-                  <MessageSquare data-icon="inline-start" />
+                  <IconSuporte decorative className="size-4" data-icon="inline-start" />
                   Falar com o suporte
                 </Button>
               </>
             ) : (
               <Button className="h-11 w-full" render={<Link href="/" />}>
-                <ArrowLeft data-icon="inline-start" />
+                <IconSetaDireita
+                  decorative
+                  className="size-4 rotate-180"
+                  data-icon="inline-start"
+                />
                 Voltar para o início
               </Button>
             )}
@@ -245,9 +261,9 @@ export function CheckoutResultPage({
       </Card>
       <p className="text-muted-foreground mx-auto mt-6 flex max-w-md items-start justify-center gap-2 text-center text-xs">
         {outcome === "failure" ? (
-          <Lock className="mt-0.5 size-3.5 shrink-0" />
+          <IconCadeado decorative className="mt-0.5 size-3.5 shrink-0" />
         ) : (
-          <Mail className="mt-0.5 size-3.5 shrink-0" />
+          <IconEmail decorative className="mt-0.5 size-3.5 shrink-0" />
         )}
         {copy.hint}
       </p>

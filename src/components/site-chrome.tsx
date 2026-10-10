@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowLeft, ArrowRight, Lock, Menu } from "lucide-react";
+import { IconCadeado, IconMenu, IconSetaDireita } from "@/components/icons";
 import { useState } from "react";
 import { BrandLogo } from "@/components/brand-logo";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -64,7 +64,7 @@ export function SiteHeader() {
               className="hidden text-sm sm:inline-flex"
               render={<Link href="/" />}
             >
-              <ArrowLeft data-icon="inline-start" />
+              <IconSetaDireita decorative className="size-4 rotate-180" data-icon="inline-start" />
               Voltar ao site
             </Button>
             <ThemeToggle />
@@ -87,16 +87,16 @@ export function SiteHeader() {
             render={<Link href="/#precos" />}
           >
             Começar agora
-            <ArrowRight data-icon="inline-end" />
+            <IconSetaDireita decorative className="size-4" data-icon="inline-end" />
           </Button>
           <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
             <SheetTrigger
               className="lg:hidden"
               render={
-                <Button variant="outline" size="icon" aria-label="Abrir menu" />
+                <Button variant="outline" size="icon" aria-label="Abrir menu" title="Abrir menu" />
               }
             >
-              <Menu />
+              <IconMenu decorative className="size-4" />
             </SheetTrigger>
             <SheetContent side="right" className="w-full max-w-xs">
               <SheetHeader>
@@ -110,7 +110,7 @@ export function SiteHeader() {
                   render={<Link href="/#precos" onClick={() => setMenuOpen(false)} />}
                 >
                   Começar agora
-                  <ArrowRight data-icon="inline-end" />
+                  <IconSetaDireita decorative className="size-4" data-icon="inline-end" />
                 </Button>
               </div>
             </SheetContent>
@@ -132,7 +132,7 @@ export function SiteFooter() {
           <p>© 2026 Will They Pay. Todos os direitos reservados.</p>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
             <span className="inline-flex items-center gap-1.5">
-              <Lock className="size-3.5" />
+              <IconCadeado decorative className="size-3.5" />
               Pagamento seguro
             </span>
             <Link href="/#contato" className="hover:text-foreground">Termos</Link>
@@ -184,7 +184,7 @@ export function SiteFooter() {
         <div className="text-muted-foreground flex flex-col gap-3 text-sm sm:flex-row sm:items-center sm:justify-between">
           <p>© 2026 Will They Pay. Todos os direitos reservados.</p>
           <p className="inline-flex items-center gap-1.5">
-            <Lock className="size-3.5" />
+            <IconCadeado decorative className="size-3.5" />
             Pagamentos processados com segurança
           </p>
         </div>
