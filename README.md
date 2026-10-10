@@ -1,148 +1,268 @@
-# Will They Pay
+![Will They Pay — open source waitlist and pre-sale template for validating SaaS ideas](docs/banner-en.png)
 
-Template de starter SaaS para o Hugo (e para os próximos produtos). UI em **português brasileiro**. Código, identificadores e comentários em **inglês**.
+**[Read in Brazilian Portuguese (README.pt-BR.md)](README.pt-BR.md)** · [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-Stack: **Next.js 16** (App Router, pin 16.3.8 — ver nota abaixo) + **Cloudflare Workers** (`@opennextjs/cloudflare`) + **Drizzle / D1** + **Tailwind CSS** + **shadcn/ui** + **Mercado Pago Checkout Pro**.
+**Find out if people will pay for your SaaS before you build it.**
 
-Este repositório é público. **Nenhum token, secret, account id ou database id real entra no git.**
+Will They Pay is an open source waitlist and pre-sale template. Launch a page for your idea, collect sign-ups, and take paid reservations via Pix, card, or boleto with Mercado Pago. Built with Next.js 16 on Cloudflare Workers and D1.
 
-## Personalizando o conteúdo
+This repository is public. **Never commit real tokens, secrets, account IDs, or D1 database IDs.**
 
-Para rebrandar o template sem caçar strings na UI:
+## What you get
 
-1. **`src/content/site.ts`** — nome do produto, URLs (GitHub, issues), textos da home, FAQ, formulários, planos de exemplo do checkout e cópia das páginas de retorno do pagamento.
-2. **`src/app/globals.css`** — tokens de cor e tipografia (marca primária, sucesso, etc.).
-3. **`public/brand/`** — logos e favicons (os caminhos padrão estão em `site.brand`).
+- Marketing landing page (copy in `src/content/site.ts`) with waitlist lead form and **demo** checkout plans to try Checkout Pro.
+- Lead capture (name, email, phone, message) with Zod validation, server actions, and D1 persistence.
+- Checkout Pro flow: creates an order in D1, creates a Mercado Pago preference, redirects to checkout, and handles `success` / `failure` / `pending` return pages.
+- `POST /api/webhooks/mercadopago` with `x-signature` validation (HMAC-SHA256) and order/payment updates in D1.
+- Typed payment layer, Vitest + MSW (no real Mercado Pago calls in tests).
+- GitHub Actions CI: lint, typecheck, and tests.
 
-O hero usa o componente `HeroVisual` (`src/components/marketing/hero-visual.tsx`). Troque por um screenshot do seu produto se preferir.
+UI copy is **Brazilian Portuguese**. Code, identifiers, and comments are **English**.
 
-Os planos na seção de preços são **só demonstração** do Checkout Pro; os valores reais do checkout vêm dos mesmos registros em `site.pricing.plans`.
+## Stack and requirements
 
-## O que já vem pronto
+| Piece | Version / notes |
+| --- | --- |
+| **Runtime** | Node.js **22+** (`engines` in `package.json`) |
+| **Package manager** | **pnpm** (`packageManager` in `package.json`; enable with `corepack enable`) |
+| **Framework** | Next.js **16.3.8** (App Router) |
+| **Deploy target** | Cloudflare Workers via [`@opennextjs/cloudflare`](https://github.com/opennextjs/cloudflare) |
+| **Database** | Cloudflare **D1** + **Drizzle ORM** |
+| **Payments** | Mercado Pago **Checkout Pro** (Pix, card, boleto) |
+| **Styling** | Tailwind CSS 4 + shadcn/ui |
 
-- Captura de leads (nome, e-mail, telefone e mensagem) com validação Zod no servidor, `server action` e persistência no D1.
-- Checkout Pro: cria o pedido no D1, cria a preferência no Mercado Pago, redireciona para o checkout e trata as URLs de `success` / `failure` / `pending`.
-- Webhook `POST /api/webhooks/mercadopago` que valida o header `x-signature` (HMAC-SHA256) e atualiza pedido/pagamento.
-- Camada de pagamentos tipada e testável, separada das rotas.
-- Vitest + MSW (sem credenciais reais).
-- CI no GitHub Actions: lint, typecheck e testes.
+**Accounts you need:**
 
-## Pré-requisitos
+1. [Cloudflare](https://dash.cloudflare.com/) account with Workers enabled.
+2. [Mercado Pago Developers](https://www.mercadopago.com.br/developers/panel/app) application (test credentials for local/sandbox).
+3. **Wrangler CLI** (included as a dev dependency). Log in before remote D1 or deploy:
 
-- Node.js 22+
-- [pnpm](https://pnpm.io/)
-- Conta [Cloudflare](https://dash.cloudflare.com/) com Workers
-- Aplicação no [painel do Mercado Pago](https://www.mercadopago.com.br/developers/panel/app)
+   ```bash
+   pnpm wrangler login
+   ```
+
+## Scripts
+
+| Command | What it does |
+| --- | --- |
+| `pnpm dev` | `next dev` — local Next.js with Cloudflare bindings via OpenNext dev integration |
+| `pnpm build` | `next build` |
+| `pnpm preview` | `opennextjs-cloudflare build` + `opennextjs-cloudflare preview` (Workers runtime locally) |
+| `pnpm deploy` | `opennextjs-cloudflare build` + `opennextjs-cloudflare deploy` |
+| `pnpm test` | Vitest (single run) |
+| `pnpm test:watch` | Vitest watch mode |
+| `pnpm typecheck` | `tsc --noEmit` |
+| `pnpm lint` | ESLint |
+| `pnpm format` | Prettier write |
+| `pnpm format:check` | Prettier check |
+| `pnpm db:generate` | `drizzle-kit generate` → SQL in `./drizzle` |
+| `pnpm db:migrate` | Apply migrations to **local** D1 (alias of `db:migrate:local`) |
+| `pnpm db:migrate:local` | `wrangler d1 migrations apply DB --local` |
+| `pnpm db:migrate:remote` | `wrangler d1 migrations apply DB --remote` |
+| `pnpm cf-typegen` | Regenerate `cloudflare-env.d.ts` from Wrangler bindings |
+
+## Run locally (step by step)
+
+### 1. Clone and install
 
 ```bash
+git clone https://github.com/hugomendonca98/will-they-pay.git
+cd will-they-pay
+corepack enable
 pnpm install
-cp .dev.vars.example .dev.vars
-cp .env.example .env.local   # opcional; o Worker lê `.dev.vars`
 ```
 
-Preencha `.dev.vars` com tokens de **teste**. Esse arquivo está no `.gitignore`.
+### 2. Local environment file
 
-## Secrets e variáveis
+```bash
+cp .dev.vars.example .dev.vars
+```
 
-| Nome | Tipo | Onde configurar |
-| --- | --- | --- |
-| `MERCADOPAGO_ACCESS_TOKEN` | **secret** | `.dev.vars` local; `pnpm wrangler secret put MERCADOPAGO_ACCESS_TOKEN` em produção |
-| `MERCADOPAGO_WEBHOOK_SECRET` | **secret** | `.dev.vars` local; `pnpm wrangler secret put MERCADOPAGO_WEBHOOK_SECRET` em produção |
-| `APP_URL` | var pública | `.dev.vars` local; `vars` em `wrangler.jsonc` no deploy |
-| `MERCADOPAGO_SANDBOX` | var pública | `"true"` (sandbox) ou `"false"` (live) |
-| `NEXTJS_ENV` | var local | `development` no `.dev.vars` para o `next dev` |
+Edit `.dev.vars` with your **Mercado Pago test** credentials (see [Configure](#configure-the-project)). `.dev.vars` is gitignored.
 
-O CI **não** usa credenciais reais. Se você adicionar um job de deploy, leia tokens só de **GitHub Actions secrets** (`Settings → Secrets and variables → Actions`), por exemplo:
+Optional: copy `.env.example` to `.env.local` if you need Next-specific tooling; **secrets and Worker vars belong in `.dev.vars`**, not in git.
 
-- `CLOUDFLARE_API_TOKEN`
-- `CLOUDFLARE_ACCOUNT_ID` (não commitar)
-- `CLOUDFLARE_D1_DATABASE_ID` (não commitar)
+### 3. Apply D1 migrations (local)
 
-Nunca cole esses valores em `wrangler.jsonc`, workflows ou README.
+```bash
+pnpm db:migrate
+```
 
-## Banco D1
+This uses the placeholder `database_id` in `wrangler.jsonc` — that is expected for **local** D1. Tables are created in Wrangler’s local D1 store.
 
-`wrangler.jsonc` usa um **placeholder** de `database_id` (`00000000-0000-0000-0000-000000000000`). Ele não é um recurso real da Cloudflare. O D1 **local** funciona assim. Antes do deploy:
+### 4. Start the dev server
+
+```bash
+pnpm dev
+```
+
+Open [http://localhost:3000](http://localhost:3000). In development, `next.config.ts` calls `initOpenNextCloudflareForDev()` so D1 and vars from `.dev.vars` are available to server code.
+
+### 5. Preview on the Workers runtime (optional)
+
+```bash
+pnpm preview
+```
+
+This builds the OpenNext output and runs Wrangler’s dev server. Check the terminal for the URL (commonly `http://localhost:8787`). If tables are missing, run `pnpm db:migrate:local` again against that local D1.
+
+Set `APP_URL` in `.dev.vars` to match the URL you use for checkout return links (no trailing slash).
+
+### 6. Quality checks
+
+```bash
+pnpm lint
+pnpm typecheck
+pnpm test
+```
+
+CI runs the same three commands; tests use in-memory SQLite and MSW — they do **not** read `.dev.vars` or call Mercado Pago.
+
+## Configure the project
+
+### Environment variables and secrets
+
+| Name | Kind | Local | Production |
+| --- | --- | --- | --- |
+| `NEXTJS_ENV` | var | `.dev.vars` — use `development` for `pnpm dev` | Not required for deploy |
+| `APP_URL` | public var | `.dev.vars` — e.g. `http://localhost:3000` | `vars` in `wrangler.jsonc` (HTTPS URL, no trailing slash) |
+| `MERCADOPAGO_SANDBOX` | public var | `.dev.vars` — `true` for sandbox | `vars` in `wrangler.jsonc` — `true` or `false` |
+| `MERCADOPAGO_ACCESS_TOKEN` | **secret** | `.dev.vars` | `pnpm wrangler secret put MERCADOPAGO_ACCESS_TOKEN` |
+| `MERCADOPAGO_WEBHOOK_SECRET` | **secret** | `.dev.vars` | `pnpm wrangler secret put MERCADOPAGO_WEBHOOK_SECRET` |
+
+**Where to get Mercado Pago values**
+
+1. Open [Your integrations](https://www.mercadopago.com.br/developers/panel/app) and create or select an application.
+2. **Credentials** → copy the **test** Access Token (`TEST-…`) into `MERCADOPAGO_ACCESS_TOKEN` for local/sandbox. Use the **production** token only as a Worker secret when you go live.
+3. **Webhooks** → configure notifications (see below) → reveal the **secret** and set `MERCADOPAGO_WEBHOOK_SECRET`.
+
+The app treats placeholder values (e.g. `replace-with-your-test-access-token`) as missing so checkout fails closed (`src/lib/env.ts`).
+
+`APP_URL` drives Checkout Pro `back_urls` and the `notification_url` sent when creating a preference (`{APP_URL}/api/webhooks/mercadopago`). `auto_return` is only sent when `APP_URL` starts with `https://` (`src/lib/payments/service.ts`).
+
+### D1 database
+
+`wrangler.jsonc` ships with a **placeholder** `database_id` (`00000000-0000-0000-0000-000000000000`). Local D1 works with that placeholder. For **production**:
 
 ```bash
 pnpm wrangler d1 create will-they-pay
 ```
 
-Copie o `database_id` impresso **só na sua máquina** (ou num secret de CI) e substitua o placeholder em `wrangler.jsonc`. Não commite o id de produção se o repositório for um template compartilhado — rode o create em cada produto novo.
+Copy the printed `database_id` into `wrangler.jsonc` under `d1_databases` (do not commit real IDs if this repo is a shared template — each deployment can use its own database).
 
-Gere e aplique migrations:
+After schema changes:
 
 ```bash
-pnpm db:generate          # SQL em ./drizzle a partir do schema
-pnpm db:migrate           # local (alias de db:migrate:local)
-pnpm db:migrate:local
-pnpm db:migrate:remote    # exige wrangler login ou CLOUDFLARE_API_TOKEN no ambiente
+pnpm db:generate    # optional: generate SQL from Drizzle schema
+pnpm db:migrate:local   # local
+pnpm db:migrate:remote  # remote (requires wrangler login or CLOUDFLARE_API_TOKEN)
 ```
 
-## Mercado Pago
+### Mercado Pago webhook (manual — not automatic)
 
-1. Crie um app em [Suas integrações](https://www.mercadopago.com.br/developers/panel/app).
-2. Copie o **Access Token de teste** para `MERCADOPAGO_ACCESS_TOKEN`.
-3. Em **Webhooks → Configurar notificações**:
-   - URL de produção (HTTPS): `https://SEU_DOMINIO/api/webhooks/mercadopago`
-   - Evento: **Payments**
-   - Revele a **secret key** e grave em `MERCADOPAGO_WEBHOOK_SECRET`
-4. Em sandbox, `APP_URL` pode ser `http://localhost:8787` (preview Wrangler) ou um túnel HTTPS. `auto_return` só é enviado quando `APP_URL` começa com `https://`.
+`pnpm deploy` **does not** register or configure webhooks in the Mercado Pago dashboard. You must do this yourself:
 
-O webhook valida `x-signature` no formato `ts=...,v1=...`, monta o manifesto `id:{data.id};request-id:{x-request-id};ts:{ts};` e compara HMAC-SHA256 em tempo constante. Depois busca `GET /v1/payments/{id}` e atualiza o D1.
+1. Deploy (or use a tunnel) so `https://YOUR_DOMAIN/api/webhooks/mercadopago` is reachable.
+2. In Mercado Pago → **Webhooks** → configure notifications:
+   - **URL:** `https://YOUR_DOMAIN/api/webhooks/mercadopago`
+   - **Event:** Payments (and any others you need)
+3. Save and copy the **webhook secret** into `MERCADOPAGO_WEBHOOK_SECRET`.
 
-## Scripts
+For **local** webhook testing, Mercado Pago needs a public HTTPS URL — use a tunnel (e.g. Cloudflare Tunnel, ngrok) and point the panel URL at your tunnel. Set `APP_URL` to that public origin.
 
-| Script | Função |
+The handler validates `x-signature` (`ts=…,v1=…`), builds the manifest `id:{data.id};request-id:{x-request-id};ts:{ts};`, and compares HMAC-SHA256 in constant time before fetching the payment and updating D1.
+
+### Test a payment in sandbox
+
+1. Keep `MERCADOPAGO_SANDBOX=true` and a **test** access token in `.dev.vars`.
+2. Run `pnpm dev` (or `pnpm preview` with matching `APP_URL`).
+3. On the home page, use **Testar uma reserva** (scrolls to demo plans) or open `/#precos`, pick a plan, and complete Checkout Pro.
+4. Use Mercado Pago [test users](https://www.mercadopago.com.br/developers/en/docs/your-integrations/test/accounts) and [test cards](https://www.mercadopago.com.br/developers/en/docs/checkout-pro/additional-content/test-cards) as documented by Mercado Pago.
+
+Demo plan prices are defined in `src/content/site.ts` (`site.pricing.plans`); they are for illustration only.
+
+## Deploy to Cloudflare (step by step)
+
+1. `pnpm wrangler login`
+2. Create a D1 database and set `database_id` in `wrangler.jsonc` (see [D1](#d1-database)).
+3. Set public vars in `wrangler.jsonc`, at minimum:
+   - `APP_URL` — your Worker HTTPS URL (custom domain or `*.workers.dev`)
+   - `MERCADOPAGO_SANDBOX` — `true` until you switch to live credentials
+4. Set secrets (interactive; do not paste secrets into shell history on shared machines):
+
+   ```bash
+   pnpm wrangler secret put MERCADOPAGO_ACCESS_TOKEN
+   pnpm wrangler secret put MERCADOPAGO_WEBHOOK_SECRET
+   ```
+
+5. Apply migrations to production D1:
+
+   ```bash
+   pnpm db:migrate:remote
+   ```
+
+6. Deploy:
+
+   ```bash
+   pnpm deploy
+   ```
+
+7. In the Mercado Pago panel, configure the webhook URL for your **deployed** domain (see [Mercado Pago webhook](#mercado-pago-webhook-manual--not-automatic)).
+8. When going live, set production credentials, set `MERCADOPAGO_SANDBOX` to `false`, and redeploy.
+
+For CI deploy jobs, store `CLOUDFLARE_API_TOKEN`, account ID, and D1 IDs in **GitHub Actions secrets** — never in this repository.
+
+## Customize branding and copy
+
+| What | Where |
 | --- | --- |
-| `pnpm dev` | Next.js local, com bindings via OpenNext |
-| `pnpm build` | `next build` |
-| `pnpm preview` | Build OpenNext + `wrangler dev` (runtime de Workers) |
-| `pnpm deploy` | Build OpenNext + deploy no Cloudflare |
-| `pnpm test` | Vitest |
-| `pnpm typecheck` | `tsc --noEmit` |
-| `pnpm lint` | ESLint |
-| `pnpm db:generate` | Gera SQL (drizzle-kit) |
-| `pnpm db:migrate:local` / `pnpm db:migrate:remote` | Aplica SQL com Wrangler |
+| Product name, URLs, marketing copy, demo plan labels | `src/content/site.ts` |
+| Colors and typography tokens | `src/app/globals.css` |
+| Logos and favicons | `public/brand/` (paths in `site.brand`) |
+| Hero illustration (terminal + validation flow) | `src/components/marketing/hero-visual.tsx` — swap for a product screenshot if you prefer |
 
-Depois de `pnpm preview`, rode `pnpm db:migrate:local` se as tabelas ainda não existirem no D1 local.
-
-## Estrutura
+## Project structure
 
 ```
-src/lib/db          schema Drizzle e client D1
-src/lib/leads       validação Zod + persistência
-src/lib/payments    cliente HTTP, HMAC, serviço de preferência/webhook
-src/app/actions     server actions (finas)
-src/app/api/webhooks/mercadopago
-src/components      UI shadcn + formulários
-drizzle             migrations SQL versionadas
+src/content/          Marketing copy and demo checkout plans (site.ts)
+src/app/              App Router pages, actions, webhook route
+src/components/       UI (shadcn), marketing sections, forms
+src/lib/db/           Drizzle schema and D1 client
+src/lib/leads/        Lead validation and persistence
+src/lib/payments/     Mercado Pago client, webhook, checkout service
+drizzle/              Versioned SQL migrations
+public/brand/         Brand assets
+docs/                 README banners and docs assets
 ```
 
-Rotas de UI: `/` (leads + checkout), `/checkout/success`, `/checkout/failure`, `/checkout/pending`.
+**UI routes:** `/` (landing), `/checkout/success`, `/checkout/failure`, `/checkout/pending`.
 
-## Deploy
+**API:** `POST /api/webhooks/mercadopago`.
 
-1. Substitua o `database_id` placeholder (passo D1).
-2. Ajuste `vars.APP_URL` em `wrangler.jsonc` para o domínio HTTPS do Worker.
-3. `pnpm wrangler secret put MERCADOPAGO_ACCESS_TOKEN`
-4. `pnpm wrangler secret put MERCADOPAGO_WEBHOOK_SECRET`
-5. `pnpm db:migrate:remote`
-6. `pnpm deploy`
-7. Cadastre a URL do webhook no painel do Mercado Pago.
+## Continuous integration
 
-Não rode `wrangler secret put` com valores no histórico de shell compartilhado se puder evitar; o CLI lê o valor de forma interativa.
+Workflow: `.github/workflows/ci.yml` — on push to `main` and on pull requests:
 
-## Notas
+- `pnpm lint`
+- `pnpm typecheck`
+- `pnpm test`
 
-O Next.js está pinado em **16.3.8** (ainda Next 16) porque o `create-next-app` atual puxa 16.4, e o `@opennextjs/cloudflare@1.20.9` quebra no `preview-props.json` ([issue 1355](https://github.com/opennextjs/opennextjs-cloudflare/issues/1355)). Há um `pnpm patch` no adapter para quando você subir de versão.
+No Mercado Pago or Cloudflare credentials are required for CI.
 
-Cache Components (`cacheComponents`) ficou desligado no `next.config.ts`: com ele ligado, o Worker local travava o request. Vale religar depois que o OpenNext tratar isso no workerd.
+## Troubleshooting
 
-## Testes
+**Next.js pinned to 16.3.8** — Newer 16.4.x releases can break `@opennextjs/cloudflare@1.20.9` (e.g. `preview-props.json`; see [opennextjs/cloudflare#1355](https://github.com/opennextjs/opennextjs-cloudflare/issues/1355)). This repo includes a `pnpm` patch under `patches/` for the adapter; revisit when upgrading.
 
-Os testes sobem um SQLite em memória (mesmo schema) e mockam a API do Mercado Pago com MSW. Não leem `.dev.vars`.
+**Cache Components** — Not enabled: enabling Cache Components with this OpenNext version can hang the local Worker. See comments in `next.config.ts`.
 
-```bash
-pnpm test
-```
+**Checkout fails immediately** — Check `.dev.vars` for real test tokens (not placeholders) and that `pnpm db:migrate` has been run.
+
+**Webhook never updates orders** — Confirm the URL and secret in the Mercado Pago panel match production, and that the endpoint is HTTPS and publicly reachable.
+
+## Contributing
+
+Issues and pull requests are welcome on [GitHub](https://github.com/hugomendonca98/will-they-pay). Keep secrets out of the tree; run `pnpm lint`, `pnpm typecheck`, and `pnpm test` before opening a PR.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).

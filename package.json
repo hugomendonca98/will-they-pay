@@ -2,6 +2,7 @@
   "name": "will-they-pay",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT",
   "description": "Starter SaaS (Next.js 16 + Cloudflare Workers + D1 + Mercado Pago Checkout Pro)",
   "engines": {
     "node": ">=22"
