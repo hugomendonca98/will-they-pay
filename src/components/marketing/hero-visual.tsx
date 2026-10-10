@@ -87,7 +87,7 @@ export function HeroVisual() {
   return (
     <div className="relative mx-auto w-full max-w-xl lg:max-w-none">
       <Card className="overflow-hidden border-0 bg-zinc-950 text-zinc-100 shadow-xl ring-1 ring-white/10">
-        <div className="flex items-center gap-2 border-b border-white/10 px-4 py-3">
+        <div className="flex items-center gap-2 border-b border-white/10 px-4 pb-3">
           <span className="size-2.5 rounded-full bg-[#ff5f57]" aria-hidden />
           <span className="size-2.5 rounded-full bg-[#febc2e]" aria-hidden />
           <span className="size-2.5 rounded-full bg-[#28c840]" aria-hidden />
