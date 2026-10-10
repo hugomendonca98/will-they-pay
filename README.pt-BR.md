@@ -127,6 +127,7 @@ O CI executa os mesmos três comandos; os testes usam SQLite em memória e MSW �
 | `NEXTJS_ENV` | var | `.dev.vars` — use `development` para `pnpm dev` | Não obrigatório no deploy |
 | `APP_URL` | var pública | `.dev.vars` — ex.: `http://localhost:3000` | `vars` em `wrangler.jsonc` (HTTPS, sem barra final) |
 | `MERCADOPAGO_SANDBOX` | var pública | `.dev.vars` — `true` no sandbox | `vars` em `wrangler.jsonc` — `true` ou `false` |
+| `DEMO_MODE` | var pública (opcional) | `.dev.vars` — omita ou `false` (padrão desligado) | `vars` em `wrangler.jsonc` ou painel Cloudflare — `"true"` só no deploy de demo público |
 | `MERCADOPAGO_ACCESS_TOKEN` | **secret** | `.dev.vars` | `pnpm wrangler secret put MERCADOPAGO_ACCESS_TOKEN` |
 | `MERCADOPAGO_WEBHOOK_SECRET` | **secret** | `.dev.vars` | `pnpm wrangler secret put MERCADOPAGO_WEBHOOK_SECRET` |
 
@@ -139,6 +140,14 @@ O CI executa os mesmos três comandos; os testes usam SQLite em memória e MSW �
 Valores placeholder (ex.: `replace-with-your-test-access-token`) são tratados como ausentes para o checkout falhar fechado (`src/lib/env.ts`).
 
 `APP_URL` define `back_urls` do Checkout Pro e o `notification_url` ao criar a preferência (`{APP_URL}/api/webhooks/mercadopago`). `auto_return` só é enviado quando `APP_URL` começa com `https://` (`src/lib/payments/service.ts`).
+
+### Faixa de demo pública (opcional)
+
+`DEMO_MODE` é lido em **runtime** no ambiente do Worker (`getCloudflareContext`), não no build — o mesmo artefato de deploy pode ser ligado/desligado sem rebuild.
+
+- **Padrão:** desligado (omitir `DEMO_MODE` ou usar `false`). O `wrangler.jsonc` do template não habilita, então quem clona não herda a faixa.
+- **Local / preview:** `DEMO_MODE=true` em `.dev.vars` (comentado em `.dev.vars.example`).
+- **Cloudflare:** `DEMO_MODE` como `"true"` em `vars` no `wrangler.jsonc` só do Worker de demo/staging, ou no [painel Cloudflare](https://dash.cloudflare.com/) → **Workers & Pages** → seu worker → **Settings** → **Variables**. Textos em `site.demoBanner` (`src/content/site.ts`).
 
 ### Banco D1
 

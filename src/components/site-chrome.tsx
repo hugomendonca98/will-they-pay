@@ -42,11 +42,12 @@ function MarketingNavLinks({
   );
 }
 
-export function SiteHeader() {
+export function SiteHeader({ demoModeActive = false }: { demoModeActive?: boolean }) {
   const pathname = usePathname();
   const isCheckout = pathname.startsWith("/checkout");
   const [menuOpen, setMenuOpen] = useState(false);
   const header = site.header;
+  const stickyTop = demoModeActive ? "top-9" : "top-0";
 
   if (isCheckout) {
     return (
@@ -73,7 +74,12 @@ export function SiteHeader() {
   const headerCta = site.headerCta;
 
   return (
-    <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+    <header
+      className={cn(
+        "sticky z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80",
+        stickyTop,
+      )}
+    >
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-4 px-4 lg:px-8">
         <BrandLogo />
         <MarketingNavLinks className="hidden lg:flex" />

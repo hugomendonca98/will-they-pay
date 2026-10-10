@@ -11,6 +11,8 @@ declare global {
     MERCADOPAGO_SANDBOX?: string;
     MERCADOPAGO_ACCESS_TOKEN: string;
     MERCADOPAGO_WEBHOOK_SECRET: string;
+    /** When "true", shows the optional public-demo warning bar (runtime only). */
+    DEMO_MODE?: string;
   }
 }
 
