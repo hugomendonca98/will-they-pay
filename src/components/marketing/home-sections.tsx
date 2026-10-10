@@ -3,7 +3,6 @@ import {
   ArrowRight,
   Check,
   CreditCard,
-  Lock,
   MessageCircle,
   Shield,
   Sparkles,
@@ -11,7 +10,7 @@ import {
 } from "lucide-react";
 import { HeroDashboardPreview } from "@/components/marketing/hero-dashboard";
 import { LeadForm } from "@/components/lead-form";
-import { SubscribeCheckoutButton } from "@/components/subscribe-checkout-dialog";
+import { PricingCards } from "@/components/pricing-cards";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,9 +20,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { SUBSCRIPTION_PLANS } from "@/lib/payments/types";
-import { cn } from "@/lib/utils";
-
 const FEATURES = [
   {
     icon: CreditCard,
@@ -153,8 +149,6 @@ export function FeaturesSection() {
 }
 
 export function PricingSection() {
-  const plans = Object.values(SUBSCRIPTION_PLANS);
-
   return (
     <section id="precos" className="py-20 lg:py-24">
       <div className="mx-auto w-full max-w-6xl px-4 lg:px-8">
@@ -170,54 +164,7 @@ export function PricingSection() {
             template.
           </p>
         </div>
-        <div className="mt-12 grid gap-6 lg:grid-cols-3">
-          {plans.map((plan) => (
-            <Card
-              key={plan.id}
-              className={cn(
-                "relative h-full border shadow-sm",
-                plan.highlighted && "border-primary ring-2 ring-primary/20",
-              )}
-            >
-              {plan.highlighted ? (
-                <Badge
-                  variant="gold"
-                  className="absolute top-4 right-4 gap-1 border-transparent"
-                >
-                  <Sparkles className="size-3" />
-                  Mais popular
-                </Badge>
-              ) : null}
-              <CardHeader className="space-y-4 pb-2">
-                <CardTitle className="text-xl font-semibold">{plan.name}</CardTitle>
-                <div>
-                  <span className="font-heading text-4xl font-bold">{plan.priceLabel}</span>
-                  <span className="text-muted-foreground text-sm"> /mês</span>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <SubscribeCheckoutButton
-                  planId={plan.id}
-                  highlighted={plan.highlighted}
-                  className="w-full h-11"
-                />
-                <ul className="space-y-3 text-sm">
-                  {plan.features.map((feature) => (
-                    <li key={feature} className="flex gap-2">
-                      <Check className="mt-0.5 size-4 shrink-0 text-primary" />
-                      <span>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-        <p className="text-muted-foreground mx-auto mt-10 flex max-w-2xl items-start justify-center gap-2 text-center text-sm">
-          <Lock className="mt-0.5 size-4 shrink-0" />
-          Pagamento seguro processado pelo Mercado Pago. Aceitamos Pix, cartão de
-          crédito em até 12x e boleto.
-        </p>
+        <PricingCards />
       </div>
     </section>
   );
