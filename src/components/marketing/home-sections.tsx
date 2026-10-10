@@ -17,14 +17,18 @@ import {
 
 function HeroTitle() {
   const { title, titleHighlight } = site.hero;
-  if (!title.endsWith(titleHighlight)) {
+  if (!titleHighlight) {
     return <>{title}</>;
   }
-  const before = title.slice(0, title.length - titleHighlight.length);
+  const index = title.indexOf(titleHighlight);
+  if (index === -1) {
+    return <>{title}</>;
+  }
   return (
     <>
-      {before}
+      {title.slice(0, index)}
       <span className="text-primary">{titleHighlight}</span>
+      {title.slice(index + titleHighlight.length)}
     </>
   );
 }
