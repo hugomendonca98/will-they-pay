@@ -15,11 +15,12 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
+import { TEMPLATE_GITHUB_URL } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
 const MARKETING_LINKS = [
-  { href: "/#recursos", label: "Recursos" },
-  { href: "/#precos", label: "Preços" },
+  { href: "/#recursos", label: "O que vem pronto" },
+  { href: "/#precos", label: "Checkout" },
   { href: "/#faq", label: "FAQ" },
   { href: "/#contato", label: "Contato" },
 ] as const;
@@ -84,9 +85,15 @@ export function SiteHeader() {
           <Button
             size="default"
             className="hidden h-10 px-4 sm:inline-flex"
-            render={<Link href="/#precos" />}
+            render={
+              <a
+                href={TEMPLATE_GITHUB_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+              />
+            }
           >
-            Começar agora
+            Usar o template
             <IconSetaDireita decorative className="size-4" data-icon="inline-end" />
           </Button>
           <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
@@ -107,10 +114,26 @@ export function SiteHeader() {
                 <Separator />
                 <Button
                   className="w-full"
-                  render={<Link href="/#precos" onClick={() => setMenuOpen(false)} />}
+                  render={
+                    <a
+                      href={TEMPLATE_GITHUB_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => setMenuOpen(false)}
+                    />
+                  }
                 >
-                  Começar agora
+                  Usar o template
                   <IconSetaDireita decorative className="size-4" data-icon="inline-end" />
+                </Button>
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  render={
+                    <Link href="/#precos" onClick={() => setMenuOpen(false)} />
+                  }
+                >
+                  Testar o checkout
                 </Button>
               </div>
             </SheetContent>
@@ -147,36 +170,34 @@ export function SiteFooter() {
   return (
     <footer className="mt-auto border-t bg-background">
       <div className="mx-auto w-full max-w-6xl px-4 py-12 lg:px-8">
-        <div className="grid gap-10 md:grid-cols-[1.4fr_repeat(3,minmax(0,1fr))]">
+        <div className="grid gap-10 md:grid-cols-[1.4fr_1fr]">
           <div className="space-y-4">
             <BrandLogo href="/" />
-            <p className="text-muted-foreground max-w-xs text-sm text-pretty">
-              Template SaaS para o mercado brasileiro. Substitua esta descrição pela
-              missão do seu produto.
+            <p className="text-muted-foreground max-w-sm text-sm text-pretty">
+              Template de SaaS em Next.js e Cloudflare, com Pix, cartão e boleto pelo
+              Mercado Pago.
             </p>
           </div>
           <div>
-            <p className="mb-3 text-sm font-semibold">Produto</p>
+            <p className="mb-3 text-sm font-semibold">Navegação</p>
             <ul className="text-muted-foreground space-y-2 text-sm">
-              <li><Link href="/#recursos" className="hover:text-foreground">Recursos</Link></li>
-              <li><Link href="/#precos" className="hover:text-foreground">Preços</Link></li>
-              <li><Link href="/#faq" className="hover:text-foreground">FAQ</Link></li>
-            </ul>
-          </div>
-          <div>
-            <p className="mb-3 text-sm font-semibold">Empresa</p>
-            <ul className="text-muted-foreground space-y-2 text-sm">
-              <li><Link href="/#contato" className="hover:text-foreground">Sobre</Link></li>
-              <li><Link href="/#contato" className="hover:text-foreground">Contato</Link></li>
-              <li><Link href="/#contato" className="hover:text-foreground">Blog</Link></li>
-            </ul>
-          </div>
-          <div>
-            <p className="mb-3 text-sm font-semibold">Legal</p>
-            <ul className="text-muted-foreground space-y-2 text-sm">
-              <li><Link href="/#contato" className="hover:text-foreground">Termos de uso</Link></li>
-              <li><Link href="/#contato" className="hover:text-foreground">Privacidade</Link></li>
-              <li><Link href="/#contato" className="hover:text-foreground">LGPD</Link></li>
+              {MARKETING_LINKS.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className="hover:text-foreground">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+              <li>
+                <a
+                  href={TEMPLATE_GITHUB_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-foreground"
+                >
+                  Código no GitHub
+                </a>
+              </li>
             </ul>
           </div>
         </div>

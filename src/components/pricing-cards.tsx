@@ -164,7 +164,7 @@ export function PricingCards() {
 
       <p className="text-muted-foreground mx-auto mt-10 flex max-w-2xl items-start justify-center gap-2 text-center text-sm">
         <IconCadeado decorative className="mt-0.5 size-4 shrink-0" />
-        Pagamento seguro. Aceitamos Pix, cartão de crédito em até 12x e boleto.
+        Pagamento seguro. Aceitamos Pix, cartão e boleto.
       </p>
     </>
   );
