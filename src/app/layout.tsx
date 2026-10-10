@@ -1,25 +1,25 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import { SiteFooter, SiteHeader } from "@/components/site-chrome";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
-const geistSans = Geist({
+const inter = Inter({
   variable: "--font-sans",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const plusJakarta = Plus_Jakarta_Sans({
+  variable: "--font-heading",
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-  title: "Will They Pay — starter SaaS",
+  title: "Will They Pay — SaaS para o Brasil",
   description:
-    "Template de SaaS com Next.js, Cloudflare Workers, D1 e Checkout Pro do Mercado Pago.",
+    "Template de SaaS com Next.js, Cloudflare Workers, D1, leads e Checkout Pro do Mercado Pago.",
 };
 
 export default function RootLayout({
@@ -31,7 +31,7 @@ export default function RootLayout({
     <html
       lang="pt-BR"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${inter.variable} ${plusJakarta.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
         <ThemeProvider>

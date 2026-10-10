@@ -1,13 +1,13 @@
 "use client";
 
 import { useActionState } from "react";
+import { ArrowRight, Lock } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -20,18 +20,18 @@ export function LeadForm() {
   const [state, formAction, pending] = useActionState(submitLead, initialLeadFormState);
 
   return (
-    <Card id="leads">
+    <Card id="leads" className="border shadow-md">
       <CardHeader>
-        <CardTitle>Capte o interesse de quem chega</CardTitle>
+        <CardTitle className="text-xl font-semibold">Envie uma mensagem</CardTitle>
         <CardDescription>
-          Formulário de exemplo com validação no servidor e persistência no D1.
+          Preencha os campos abaixo. Leva menos de 1 minuto.
         </CardDescription>
       </CardHeader>
       <form action={formAction}>
         <CardContent className="grid gap-4">
           {state.status === "success" ? (
             <Alert>
-              <AlertTitle>Lead salvo</AlertTitle>
+              <AlertTitle>Mensagem enviada</AlertTitle>
               <AlertDescription>{state.message}</AlertDescription>
             </Alert>
           ) : null}
@@ -48,6 +48,7 @@ export function LeadForm() {
               id="lead-name"
               name="name"
               autoComplete="name"
+              placeholder="Seu nome completo"
               required
               aria-invalid={Boolean(state.fields?.name)}
             />
@@ -63,6 +64,7 @@ export function LeadForm() {
               name="email"
               type="email"
               autoComplete="email"
+              placeholder="voce@empresa.com"
               required
               aria-invalid={Boolean(state.fields?.email)}
             />
@@ -72,12 +74,13 @@ export function LeadForm() {
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="lead-phone">Telefone (opcional)</Label>
+            <Label htmlFor="lead-phone">WhatsApp (opcional)</Label>
             <Input
               id="lead-phone"
               name="phone"
               type="tel"
               autoComplete="tel"
+              placeholder="(11) 99999-0000"
               aria-invalid={Boolean(state.fields?.phone)}
             />
             {state.fields?.phone ? (
@@ -86,23 +89,29 @@ export function LeadForm() {
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="lead-message">Mensagem (opcional)</Label>
+            <Label htmlFor="lead-message">Mensagem</Label>
             <Textarea
               id="lead-message"
               name="message"
               rows={4}
+              placeholder="Conte um pouco sobre o que você precisa..."
               aria-invalid={Boolean(state.fields?.message)}
             />
             {state.fields?.message ? (
               <p className="text-destructive text-sm">{state.fields.message}</p>
             ) : null}
           </div>
-        </CardContent>
-        <CardFooter>
-          <Button type="submit" disabled={pending} className="w-full sm:w-auto">
-            {pending ? "Enviando..." : "Enviar lead"}
+
+          <Button type="submit" disabled={pending} className="h-11 w-full">
+            {pending ? "Enviando..." : "Enviar mensagem"}
+            {!pending ? <ArrowRight data-icon="inline-end" /> : null}
           </Button>
-        </CardFooter>
+          <p className="text-muted-foreground flex items-start gap-2 text-xs">
+            <Lock className="mt-0.5 size-3.5 shrink-0" />
+            Ao enviar, você concorda com nossa política de privacidade. Não compartilhamos
+            seus dados com terceiros.
+          </p>
+        </CardContent>
       </form>
     </Card>
   );

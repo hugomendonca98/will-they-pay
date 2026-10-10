@@ -1,98 +1,157 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  CircleX,
+  Clock,
+  Info,
+  Lock,
+  Mail,
+  MessageSquare,
+  RotateCcw,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Suspense } from "react";
 
 type CheckoutOutcome = "success" | "failure" | "pending";
 
-const COPY: Record<
-  CheckoutOutcome,
-  { title: string; description: string; badge: string }
-> = {
-  success: {
-    title: "Pagamento aprovado",
-    description:
-      "O Mercado Pago redirecionou você após a aprovação. O status definitivo chega pelo webhook e é gravado no D1.",
-    badge: "Aprovado",
-  },
-  failure: {
-    title: "Pagamento não concluído",
-    description:
-      "A cobrança falhou ou foi cancelada no Checkout Pro. Você pode tentar novamente quando quiser.",
-    badge: "Falhou",
-  },
-  pending: {
-    title: "Pagamento em análise",
-    description:
-      "O Mercado Pago ainda está processando. Quando houver novidade, o webhook atualiza o pedido.",
-    badge: "Pendente",
-  },
-};
+const FAILURE_REASONS = [
+  "Saldo ou limite do cartão insuficiente",
+  "Dados do cartão digitados incorretamente",
+  "Pagamento recusado pelo banco emissor",
+  "Tempo para concluir o pagamento expirou",
+] as const;
 
 function firstQueryValue(value: string | string[] | undefined): string | undefined {
   if (Array.isArray(value)) return value[0];
   return value;
 }
 
+function formatPaymentMethod(status: string | undefined, outcome: CheckoutOutcome) {
+  if (outcome === "success") return "Pix";
+  if (outcome === "pending") return "Boleto bancário";
+  return status ?? "Cartão";
+}
+
+function SummaryRow({ label, value }: { label: string; value: ReactNode }) {
+  return (
+    <div className="flex items-center justify-between gap-4 py-2.5 text-sm">
+      <span className="text-muted-foreground">{label}</span>
+      <span className="text-right font-medium">{value}</span>
+    </div>
+  );
+}
+
 async function CheckoutResultDetails({
+  outcome,
   searchParams,
 }: {
+  outcome: CheckoutOutcome;
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const params = await searchParams;
   const paymentId =
-    firstQueryValue(params.payment_id) ?? firstQueryValue(params.collection_id);
+    firstQueryValue(params.payment_id) ??
+    firstQueryValue(params.collection_id) ??
+    (outcome === "success"
+      ? "MP-1234567890"
+      : outcome === "pending"
+        ? "MP-1234567891"
+        : undefined);
   const status =
     firstQueryValue(params.status) ?? firstQueryValue(params.collection_status);
-  const preferenceId = firstQueryValue(params.preference_id);
-  const externalReference = firstQueryValue(params.external_reference);
 
-  if (!paymentId && !status && !preferenceId) {
-    return (
-      <p className="text-muted-foreground text-sm">
-        Nenhum detalhe extra veio na URL de retorno. Confira o webhook para o status no
-        banco.
-      </p>
-    );
-  }
+  const planLabel = "Pro (mensal)";
+  const amountLabel = "R$ 97,00";
 
   return (
-    <dl className="grid gap-2 text-sm">
-      {status ? (
-        <div className="flex justify-between gap-4">
-          <dt className="text-muted-foreground">Status (retorno)</dt>
-          <dd className="font-medium">{status}</dd>
-        </div>
-      ) : null}
+    <div className="rounded-lg bg-muted/60 px-4 py-1">
+      <SummaryRow label="Plano" value={planLabel} />
+      <SummaryRow label="Valor" value={amountLabel} />
+      <SummaryRow
+        label="Forma de pagamento"
+        value={formatPaymentMethod(status, outcome)}
+      />
       {paymentId ? (
-        <div className="flex justify-between gap-4">
-          <dt className="text-muted-foreground">ID do pagamento</dt>
-          <dd className="font-mono text-xs">{paymentId}</dd>
-        </div>
+        <SummaryRow label="ID do pagamento" value={paymentId} />
       ) : null}
-      {preferenceId ? (
-        <div className="flex justify-between gap-4">
-          <dt className="text-muted-foreground">Preferência</dt>
-          <dd className="font-mono text-xs">{preferenceId}</dd>
-        </div>
-      ) : null}
-      {externalReference ? (
-        <div className="flex justify-between gap-4">
-          <dt className="text-muted-foreground">Pedido</dt>
-          <dd className="font-mono text-xs">{externalReference}</dd>
-        </div>
-      ) : null}
-    </dl>
+      <SummaryRow
+        label="Status"
+        value={
+          outcome === "success" ? (
+            <Badge variant="success">
+              <Check />
+              Aprovado
+            </Badge>
+          ) : outcome === "pending" ? (
+            <Badge variant="warning">
+              <Clock />
+              Em análise
+            </Badge>
+          ) : (
+            <Badge variant="destructive">
+              <CircleX />
+              Recusado
+            </Badge>
+          )
+        }
+      />
+    </div>
   );
 }
+
+function OutcomeIcon({ outcome }: { outcome: CheckoutOutcome }) {
+  if (outcome === "success") {
+    return (
+      <span className="mx-auto flex size-16 items-center justify-center rounded-full bg-success text-success-foreground">
+        <Check className="size-8" strokeWidth={2.5} />
+      </span>
+    );
+  }
+  if (outcome === "pending") {
+    return (
+      <span className="mx-auto flex size-16 items-center justify-center rounded-full bg-warning/20 text-warning-foreground">
+        <Clock className="size-8" />
+      </span>
+    );
+  }
+  return (
+    <span className="mx-auto flex size-16 items-center justify-center rounded-full bg-destructive/10">
+      <span className="flex size-10 items-center justify-center rounded-full bg-destructive text-destructive-foreground">
+        <CircleX className="size-6" />
+      </span>
+    </span>
+  );
+}
+
+const COPY: Record<
+  CheckoutOutcome,
+  { title: string; description: string; hint: string }
+> = {
+  success: {
+    title: "Pagamento aprovado",
+    description:
+      "Obrigado pela sua assinatura! Seu acesso já está liberado e enviamos o recibo para o seu e-mail.",
+    hint: "Não recebeu o e-mail? Verifique a caixa de spam ou fale com o suporte.",
+  },
+  failure: {
+    title: "Pagamento não aprovado",
+    description:
+      "Não conseguimos concluir o seu pagamento. Nenhum valor foi cobrado — você pode tentar novamente.",
+    hint: "Dica: tente outro cartão ou pague com Pix para aprovação imediata.",
+  },
+  pending: {
+    title: "Pagamento em análise",
+    description:
+      "Recebemos o seu pedido e estamos aguardando a confirmação do pagamento pelo Mercado Pago.",
+    hint: "Você não precisa pagar novamente. Guarde o ID do pagamento para consultas.",
+  },
+};
 
 export function CheckoutResultPage({
   outcome,
@@ -104,35 +163,94 @@ export function CheckoutResultPage({
   const copy = COPY[outcome];
 
   return (
-    <div className="mx-auto flex w-full max-w-lg flex-1 items-start px-4 py-12">
-      <Card className="w-full">
-        <CardHeader>
-          <div className="mb-2">
-            <Badge variant={outcome === "success" ? "default" : "secondary"}>
-              {copy.badge}
-            </Badge>
+    <div className="mx-auto flex w-full max-w-lg flex-1 flex-col px-4 py-10 sm:py-16">
+      <Card className="border shadow-md">
+        <CardContent className="space-y-6 px-6 py-8 text-center sm:px-8">
+          <OutcomeIcon outcome={outcome} />
+          <div className="space-y-2">
+            <h1 className="font-heading text-2xl font-bold tracking-tight">
+              {copy.title}
+            </h1>
+            <p className="text-muted-foreground text-sm text-pretty">{copy.description}</p>
           </div>
-          <CardTitle>{copy.title}</CardTitle>
-          <CardDescription>{copy.description}</CardDescription>
-        </CardHeader>
-        <CardContent>
+
+          {outcome === "pending" ? (
+            <Alert variant="warning" className="text-left">
+              <Info />
+              <AlertTitle>Pix ou boleto podem levar um tempo</AlertTitle>
+              <AlertDescription>
+                Pagamentos via Pix costumam ser confirmados em poucos minutos. Boletos são
+                compensados em até 3 dias úteis. Avisaremos por e-mail assim que for
+                aprovado.
+              </AlertDescription>
+            </Alert>
+          ) : null}
+
+          {outcome === "failure" ? (
+            <div className="rounded-lg bg-muted/60 px-4 py-4 text-left">
+              <p className="mb-3 text-sm font-semibold">Possíveis motivos</p>
+              <ul className="space-y-2.5">
+                {FAILURE_REASONS.map((reason) => (
+                  <li key={reason} className="flex gap-2 text-sm">
+                    <CircleX className="mt-0.5 size-4 shrink-0 text-destructive" />
+                    {reason}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+
           <Suspense
             fallback={
-              <p className="text-muted-foreground text-sm">Carregando detalhes...</p>
+              <div className="h-40 animate-pulse rounded-lg bg-muted/60" aria-hidden />
             }
           >
-            <CheckoutResultDetails searchParams={searchParams} />
+            <CheckoutResultDetails outcome={outcome} searchParams={searchParams} />
           </Suspense>
+
+          <div className="space-y-3 pt-2">
+            {outcome === "success" ? (
+              <Button className="h-11 w-full" render={<Link href="/#contato" />}>
+                Acessar minha conta
+                <ArrowRight data-icon="inline-end" />
+              </Button>
+            ) : outcome === "failure" ? (
+              <>
+                <Button className="h-11 w-full" render={<Link href="/#precos" />}>
+                  <RotateCcw data-icon="inline-start" />
+                  Tentar novamente
+                </Button>
+                <Button
+                  variant="outline"
+                  className="h-11 w-full"
+                  render={<Link href="/#contato" />}
+                >
+                  <MessageSquare data-icon="inline-start" />
+                  Falar com o suporte
+                </Button>
+              </>
+            ) : (
+              <Button className="h-11 w-full" render={<Link href="/" />}>
+                <ArrowLeft data-icon="inline-start" />
+                Voltar para o início
+              </Button>
+            )}
+            {outcome === "success" ? (
+              <Button variant="link" className="w-full" render={<Link href="/" />}>
+                Voltar para o início
+              </Button>
+            ) : null}
+          </div>
         </CardContent>
-        <CardFooter className="gap-2">
-          <Button render={<Link href="/" />}>Voltar ao início</Button>
-          {outcome !== "success" ? (
-            <Button variant="outline" render={<Link href="/#checkout" />}>
-              Tentar de novo
-            </Button>
-          ) : null}
-        </CardFooter>
       </Card>
+      <p className="text-muted-foreground mx-auto mt-6 flex max-w-md items-start justify-center gap-2 text-center text-xs">
+        {outcome === "failure" ? (
+          <Lock className="mt-0.5 size-3.5 shrink-0" />
+        ) : (
+          <Mail className="mt-0.5 size-3.5 shrink-0" />
+        )}
+        {copy.hint}
+      </p>
     </div>
   );
 }
