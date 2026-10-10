@@ -34,6 +34,13 @@ export const site = {
 
   headerCta: { label: "Ver no GitHub", href: "repoUrl" as const },
 
+  demoBanner: {
+    desktop:
+      "Demo: os pagamentos são de teste e nada é cobrado. Use um e-mail que não seja o seu.",
+    mobile: "Demo: pagamentos de teste, nada é cobrado.",
+    linkLabel: "Ver no GitHub",
+  },
+
   hero: {
     badge: "Open source · Lista de espera + pré-venda",
     title: "Descubra se vão pagar pelo seu SaaS antes de construir",

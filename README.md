@@ -127,6 +127,7 @@ CI runs the same three commands; tests use in-memory SQLite and MSW — they do 
 | `NEXTJS_ENV` | var | `.dev.vars` — use `development` for `pnpm dev` | Not required for deploy |
 | `APP_URL` | public var | `.dev.vars` — e.g. `http://localhost:3000` | `vars` in `wrangler.jsonc` (HTTPS URL, no trailing slash) |
 | `MERCADOPAGO_SANDBOX` | public var | `.dev.vars` — `true` for sandbox | `vars` in `wrangler.jsonc` — `true` or `false` |
+| `DEMO_MODE` | public var (optional) | `.dev.vars` — omit or `false` (default off) | `vars` in `wrangler.jsonc` or Cloudflare dashboard — set `"true"` only on a public demo deploy |
 | `MERCADOPAGO_ACCESS_TOKEN` | **secret** | `.dev.vars` | `pnpm wrangler secret put MERCADOPAGO_ACCESS_TOKEN` |
 | `MERCADOPAGO_WEBHOOK_SECRET` | **secret** | `.dev.vars` | `pnpm wrangler secret put MERCADOPAGO_WEBHOOK_SECRET` |
 
@@ -139,6 +140,14 @@ CI runs the same three commands; tests use in-memory SQLite and MSW — they do 
 The app treats placeholder values (e.g. `replace-with-your-test-access-token`) as missing so checkout fails closed (`src/lib/env.ts`).
 
 `APP_URL` drives Checkout Pro `back_urls` and the `notification_url` sent when creating a preference (`{APP_URL}/api/webhooks/mercadopago`). `auto_return` is only sent when `APP_URL` starts with `https://` (`src/lib/payments/service.ts`).
+
+### Public demo banner (optional)
+
+`DEMO_MODE` is evaluated **at runtime** from the Worker environment (`getCloudflareContext`), not at build time — the same deploy artifact can be toggled without rebuilding.
+
+- **Default:** off (omit `DEMO_MODE` or set it to `false`). The template `wrangler.jsonc` does not enable it, so clones do not inherit the banner.
+- **Local / preview:** add `DEMO_MODE=true` to `.dev.vars` (commented in `.dev.vars.example`).
+- **Cloudflare:** set `DEMO_MODE` to `"true"` under `vars` in `wrangler.jsonc` for a demo/staging Worker only, or add the variable in the [Cloudflare dashboard](https://dash.cloudflare.com/) → **Workers & Pages** → your worker → **Settings** → **Variables**. Banner copy is in `site.demoBanner` (`src/content/site.ts`).
 
 ### D1 database
 

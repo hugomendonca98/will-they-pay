@@ -15,6 +15,11 @@ APP_URL=http://localhost:3000
 # "true" uses sandbox_init_point from Mercado Pago. Use "false" only in live.
 MERCADOPAGO_SANDBOX=true
 
+# Optional public-demo warning bar at the top of the site. Default is off — leave
+# unset or set to "false" when cloning. Set to "true" only for a public demo deploy
+# (or your own staging URL). Same build works with or without this flag.
+# DEMO_MODE=true
+
 # Access token from Mercado Pago Developers → Your integrations → Credentials.
 # Test token (TEST-...) locally; production token only as a Worker secret.
 MERCADOPAGO_ACCESS_TOKEN=replace-with-your-test-access-token
