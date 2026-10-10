@@ -30,10 +30,10 @@ export function CheckoutForm() {
   return (
     <Card id="checkout">
       <CardHeader>
-        <CardTitle>Checkout Pro de exemplo</CardTitle>
+        <CardTitle>Checkout de exemplo</CardTitle>
         <CardDescription>
           Cria uma preferência no servidor, grava o pedido no D1 e redireciona para o
-          Mercado Pago. Produto demo: {DEMO_PRODUCT.title} por {priceLabel}.
+          pagamento. Produto demo: {DEMO_PRODUCT.title} por {priceLabel}.
         </CardDescription>
       </CardHeader>
       <form action={formAction}>

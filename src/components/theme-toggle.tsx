@@ -1,8 +1,8 @@
 "use client";
 
-import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useSyncExternalStore } from "react";
+import { IconLua, IconSol } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 
 const emptySubscribe = () => () => {};
@@ -16,7 +16,9 @@ export function ThemeToggle() {
   );
 
   if (!mounted) {
-    return <Button variant="ghost" size="icon" aria-hidden className="size-8" />;
+    return (
+      <Button variant="outline" size="icon" aria-hidden className="size-10" />
+    );
   }
 
   const isDark = resolvedTheme === "dark";
@@ -24,12 +26,14 @@ export function ThemeToggle() {
   return (
     <Button
       type="button"
-      variant="ghost"
+      variant="outline"
       size="icon"
+      className="size-10"
       aria-label={isDark ? "Ativar tema claro" : "Ativar tema escuro"}
+      title={isDark ? "Tema claro" : "Tema escuro"}
       onClick={() => setTheme(isDark ? "light" : "dark")}
     >
-      {isDark ? <Sun /> : <Moon />}
+      {isDark ? <IconSol decorative className="size-4" /> : <IconLua decorative className="size-4" />}
     </Button>
   );
 }

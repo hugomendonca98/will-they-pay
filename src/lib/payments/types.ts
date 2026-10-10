@@ -1,3 +1,5 @@
+import { getSubscriptionPlan } from "@/content/site";
+
 export const ORDER_STATUSES = [
   "pending",
   "in_process",
@@ -64,3 +66,16 @@ export const DEMO_PRODUCT = {
   unitPrice: 10,
   currencyId: "BRL",
 } as const;
+
+export function resolveCheckoutItem(planId: string | undefined) {
+  const plan = getSubscriptionPlan(planId);
+  if (plan) {
+    return {
+      title: plan.title,
+      quantity: 1,
+      unitPrice: plan.unitPrice,
+      currencyId: plan.currencyId,
+    };
+  }
+  return { ...DEMO_PRODUCT };
+}

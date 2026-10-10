@@ -7,7 +7,7 @@ import { MissingSecretError, ValidationError } from "@/lib/errors";
 import { parseCheckoutInput } from "@/lib/payments/checkout-schema";
 import { createHttpMercadoPagoClient } from "@/lib/payments/client";
 import { createCheckoutPreference } from "@/lib/payments/service";
-import { DEMO_PRODUCT } from "@/lib/payments/types";
+import { resolveCheckoutItem } from "@/lib/payments/types";
 
 export type CheckoutFormState = {
   status: "idle" | "error";
@@ -33,10 +33,13 @@ export async function startCheckout(
       accessToken: env.mercadoPagoAccessToken,
     });
 
+    const planId = String(formData.get("plan") ?? "").trim() || undefined;
+    const item = resolveCheckoutItem(planId);
+
     const { checkoutUrl } = await createCheckoutPreference(
       {
         customer,
-        item: { ...DEMO_PRODUCT },
+        item,
         appUrl: env.appUrl,
         sandbox: env.mercadoPagoSandbox,
       },
@@ -59,7 +62,7 @@ export async function startCheckout(
       return {
         status: "error",
         message:
-          "Pagamentos ainda não estão configurados. Defina as credenciais do Mercado Pago em .dev.vars ou como secrets do Worker.",
+          "Pagamentos ainda não estão configurados. Defina as credenciais do gateway em .dev.vars ou como secrets do Worker.",
       };
     }
 
@@ -67,7 +70,7 @@ export async function startCheckout(
     return {
       status: "error",
       message:
-        "Não foi possível iniciar o Checkout Pro agora. Confira as credenciais e tente novamente.",
+        "Não foi possível iniciar o checkout agora. Confira as credenciais e tente novamente.",
     };
   }
 }

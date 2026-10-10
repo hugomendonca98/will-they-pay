@@ -1,0 +1,30 @@
+import { createWtpIcon } from "./create-wtp-icon";
+
+export const IconAlerta = createWtpIcon("alerta");
+export const IconBoleto = createWtpIcon("boleto");
+export const IconCadeado = createWtpIcon("cadeado");
+export const IconCartao = createWtpIcon("cartao");
+export const IconCheck = createWtpIcon("check");
+export const IconEmail = createWtpIcon("email");
+export const IconEscudo = createWtpIcon("escudo");
+export const IconGrafico = createWtpIcon("grafico");
+export const IconLogoMark = createWtpIcon("logo-mark");
+export const IconLua = createWtpIcon("lua");
+export const IconMais = createWtpIcon("mais");
+export const IconMenos = createWtpIcon("menos");
+export const IconMenu = createWtpIcon("menu");
+export const IconMoedas = createWtpIcon("moedas");
+export const IconPagamentoAprovado = createWtpIcon("pagamento-aprovado");
+export const IconPagamentoPendente = createWtpIcon("pagamento-pendente");
+export const IconPagamentoRecusado = createWtpIcon("pagamento-recusado");
+export const IconPix = createWtpIcon("pix");
+export const IconRaio = createWtpIcon("raio");
+export const IconSetaDireita = createWtpIcon("seta-direita");
+export const IconSol = createWtpIcon("sol");
+export const IconSuporte = createWtpIcon("suporte");
+export const IconUsuarios = createWtpIcon("usuarios");
+export const IconWhatsapp = createWtpIcon("whatsapp");
+
+export { WtpIcon, type WtpIconProps } from "./create-wtp-icon";
+export type { WtpIconName } from "./wtp-icon-paths";
+export { WTP_ICON_LABELS } from "./icon-labels";
