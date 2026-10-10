@@ -30,8 +30,9 @@
       "database_name": "will-they-pay",
       // Placeholder — not a real Cloudflare resource. After
       // `pnpm wrangler d1 create will-they-pay`, replace this with the
-      // printed database_id (or set CLOUDFLARE_D1_DATABASE_ID in your shell
-      // / CI secrets and keep this placeholder locally).
+      // printed database_id for a private deploy, or keep the placeholder
+      // and set GitHub secret D1_DATABASE_ID (CI rewrites this file on the
+      // runner and never commits the real id).
       "database_id": "00000000-0000-0000-0000-000000000000",
       "migrations_dir": "drizzle",
     },

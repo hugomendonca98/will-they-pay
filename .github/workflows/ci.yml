@@ -5,15 +5,17 @@ on:
     branches: [main]
   pull_request:
 
-concurrency:
-  group: ci-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+permissions:
+  contents: read
 
 jobs:
   quality:
     name: lint, typecheck, test
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    concurrency:
+      group: ci-quality-${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
     env:
       # Tests never call Mercado Pago or Cloudflare. These names exist only so
       # a future job that needs credentials MUST come from GitHub Secrets —
@@ -44,3 +46,105 @@ jobs:
 
       - name: Test
         run: pnpm test
+
+  deploy:
+    name: Deploy to Cloudflare Workers
+    needs: quality
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    concurrency:
+      group: cloudflare-deploy-${{ github.repository }}
+      cancel-in-progress: false
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - name: Check Cloudflare credentials
+        id: gate
+        env:
+          D1_DATABASE_ID: ${{ secrets.D1_DATABASE_ID }}
+          CLOUDFLARE_AUTO_DEPLOY: ${{ vars.CLOUDFLARE_AUTO_DEPLOY }}
+        run: |
+          set -euo pipefail
+          if [ "${CLOUDFLARE_AUTO_DEPLOY:-}" = "false" ] || [ "${CLOUDFLARE_AUTO_DEPLOY:-}" = "0" ]; then
+            echo "CLOUDFLARE_AUTO_DEPLOY is false; skipping deploy."
+            echo "should_deploy=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          missing=0
+          [ -n "${CLOUDFLARE_API_TOKEN:-}" ] || missing=$((missing + 1))
+          [ -n "${CLOUDFLARE_ACCOUNT_ID:-}" ] || missing=$((missing + 1))
+          [ -n "${D1_DATABASE_ID:-}" ] || missing=$((missing + 1))
+
+          if [ "$missing" -eq 3 ]; then
+            echo "Cloudflare GitHub secrets are not configured; skipping deploy (expected for forks/clones)."
+            echo "should_deploy=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if [ "$missing" -ne 0 ]; then
+            echo "::error::Partial Cloudflare configuration. Set all of CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID, and D1_DATABASE_ID as GitHub Actions secrets — or remove them all to skip deploy."
+            exit 1
+          fi
+
+          echo "should_deploy=true" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout
+        if: steps.gate.outputs.should_deploy == 'true'
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        if: steps.gate.outputs.should_deploy == 'true'
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        if: steps.gate.outputs.should_deploy == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install
+        if: steps.gate.outputs.should_deploy == 'true'
+        run: pnpm install --frozen-lockfile
+
+      - name: Inject D1 id and demo vars into wrangler.jsonc
+        if: steps.gate.outputs.should_deploy == 'true'
+        env:
+          D1_DATABASE_ID: ${{ secrets.D1_DATABASE_ID }}
+          APP_URL: ${{ vars.APP_URL || secrets.APP_URL }}
+          DEMO_MODE: ${{ vars.DEMO_MODE || secrets.DEMO_MODE }}
+        run: node scripts/inject-wrangler-ci-config.mjs
+
+      - name: Verify injected wrangler vars
+        if: steps.gate.outputs.should_deploy == 'true'
+        run: |
+          set -euo pipefail
+          if grep -F 'http://localhost:3000' wrangler.jsonc; then
+            echo "::error::APP_URL is still localhost; refusing to deploy."
+            exit 1
+          fi
+          if grep -F '00000000-0000-0000-0000-000000000000' wrangler.jsonc; then
+            echo "::error::Placeholder D1 database_id is still present; refusing to deploy."
+            exit 1
+          fi
+          echo "Vars Wrangler will upload:"
+          grep -E '"APP_URL"|"DEMO_MODE"|"MERCADOPAGO_SANDBOX"' wrangler.jsonc
+
+      - name: Apply remote D1 migrations
+        if: steps.gate.outputs.should_deploy == 'true'
+        run: pnpm run db:migrate:remote
+
+      - name: Build OpenNext Worker
+        if: steps.gate.outputs.should_deploy == 'true'
+        run: pnpm exec opennextjs-cloudflare build
+
+      - name: Deploy to Cloudflare Workers
+        if: steps.gate.outputs.should_deploy == 'true'
+        # Extra args after `--` are forwarded to wrangler. `--keep-vars` keeps
+        # dashboard-only vars (and never deletes Worker secrets such as
+        # MERCADOPAGO_*). APP_URL still comes from the rewritten wrangler.jsonc
+        # so it cannot snap back to the committed localhost default.
+        run: pnpm exec opennextjs-cloudflare deploy -- --keep-vars

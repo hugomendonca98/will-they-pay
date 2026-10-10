@@ -15,7 +15,7 @@ Este repositório é público. **Nunca commite tokens, secrets, account ids ou d
 - Fluxo Checkout Pro: cria pedido no D1, cria preferência no Mercado Pago, redireciona ao checkout e trata retornos `success` / `failure` / `pending`.
 - `POST /api/webhooks/mercadopago` com validação de `x-signature` (HMAC-SHA256) e atualização de pedido/pagamento no D1.
 - Camada de pagamentos tipada, Vitest + MSW (sem chamadas reais ao Mercado Pago nos testes).
-- CI no GitHub Actions: lint, typecheck e testes.
+- CI no GitHub Actions: lint, typecheck e testes; auto-deploy opcional para Cloudflare Workers em push na `main`.
 
 A UI está em **português brasileiro**. Código, identificadores e comentários em **inglês**.
 
@@ -48,7 +48,7 @@ A UI está em **português brasileiro**. Código, identificadores e comentários
 | `pnpm dev` | `next dev` — Next.js local com bindings Cloudflare via integração dev do OpenNext |
 | `pnpm build` | `next build` |
 | `pnpm preview` | `opennextjs-cloudflare build` + `opennextjs-cloudflare preview` (runtime Workers local) |
-| `pnpm deploy` | `opennextjs-cloudflare build` + `opennextjs-cloudflare deploy` |
+| `pnpm run deploy` | `opennextjs-cloudflare build` + `opennextjs-cloudflare deploy` (`pnpm deploy` é built-in do pnpm — use sempre `pnpm run deploy`) |
 | `pnpm test` | Vitest (uma execução) |
 | `pnpm test:watch` | Vitest em modo watch |
 | `pnpm typecheck` | `tsc --noEmit` |
@@ -157,7 +157,7 @@ Valores placeholder (ex.: `replace-with-your-test-access-token`) são tratados c
 pnpm wrangler d1 create will-they-pay
 ```
 
-Copie o `database_id` impresso para `wrangler.jsonc` em `d1_databases` (evite commitar ids reais se o repo for template compartilhado).
+Copie o `database_id` impresso para `wrangler.jsonc` em `d1_databases` num fork privado, ou mantenha o placeholder e defina o secret `D1_DATABASE_ID` no GitHub para o auto-deploy (veja [Deploy automático](#deploy-automático-na-cloudflare-workers)). Não commite ids reais num template compartilhado.
 
 Após mudanças no schema:
 
@@ -169,7 +169,7 @@ pnpm db:migrate:remote # remoto (exige wrangler login ou CLOUDFLARE_API_TOKEN)
 
 ### Webhook do Mercado Pago (manual — não é automático)
 
-`pnpm deploy` **não** cadastra nem configura webhooks no painel do Mercado Pago. Você precisa fazer isso:
+`pnpm run deploy` **não** cadastra nem configura webhooks no painel do Mercado Pago. Você precisa fazer isso:
 
 1. Faça deploy (ou use um túnel) até `https://SEU_DOMINIO/api/webhooks/mercadopago` estar acessível.
 2. No Mercado Pago → **Webhooks** → configurar notificações:
@@ -213,13 +213,13 @@ Preços dos planos demo estão em `src/content/site.ts` (`site.pricing.plans`); 
 6. Deploy:
 
    ```bash
-   pnpm deploy
+   pnpm run deploy
    ```
 
 7. No painel do Mercado Pago, configure a URL de webhook do domínio **publicado** (veja [Webhook](#webhook-do-mercado-pago-manual--não-é-automático)).
 8. Ao ir para produção, use credenciais live, `MERCADOPAGO_SANDBOX=false` e faça deploy de novo.
 
-Em CI de deploy, guarde `CLOUDFLARE_API_TOKEN`, account id e ids do D1 em **secrets do GitHub Actions** — nunca neste repositório.
+Para publicar a cada push na `main` em vez de rodar estes passos localmente, veja [Deploy automático](#deploy-automático-na-cloudflare-workers).
 
 ## Personalizar marca e conteúdo
 
@@ -250,13 +250,58 @@ docs/                 Banners do README e outros assets de docs
 
 ## Integração contínua (CI)
 
-Workflow: `.github/workflows/ci.yml` — em push na `main` e em pull requests:
+Workflow: `.github/workflows/ci.yml`.
+
+### Verificações de qualidade
+
+Em todo push na `main` e em pull requests:
 
 - `pnpm lint`
 - `pnpm typecheck`
 - `pnpm test`
 
-O CI não precisa de credenciais Mercado Pago ou Cloudflare.
+Este job não precisa de credenciais Mercado Pago ou Cloudflare.
+
+### Deploy automático na Cloudflare Workers
+
+Depois que o job de qualidade **passa**, o job de deploy roda **só em push na `main`** (não em pull requests). Ele é **ignorado** (o workflow continua verde) quando os secrets da Cloudflare no GitHub não existem — o comportamento esperado em forks e clones.
+
+**Não** coloque tokens do Mercado Pago no GitHub. Continue usando `pnpm wrangler secret put` no Worker. Deploys do Wrangler nunca apagam Worker secrets (`MERCADOPAGO_ACCESS_TOKEN`, `MERCADOPAGO_WEBHOOK_SECRET`).
+
+**Secrets do GitHub Actions** (Settings → Secrets and variables → Actions → Secrets):
+
+| Secret | Função |
+| --- | --- |
+| `CLOUDFLARE_API_TOKEN` | Autenticação do Wrangler |
+| `CLOUDFLARE_ACCOUNT_ID` | Conta Cloudflare dona do Worker e do D1 |
+| `D1_DATABASE_ID` | UUID do D1 de produção. Injetado no `wrangler.jsonc` só no runner — nunca commitado |
+
+**Variáveis do GitHub Actions** (Settings → Secrets and variables → Actions → Variables). Um secret com o mesmo nome também vale; variável combina melhor porque estes valores não são credenciais:
+
+| Variável | Função |
+| --- | --- |
+| `APP_URL` | Origem HTTPS pública do Worker (sem barra no final), ex.: `https://will-they-pay.<subdomain>.workers.dev`. **Obrigatória** com o auto-deploy ligado. O CI reescreve `vars.APP_URL` no `wrangler.jsonc` antes do deploy para o Wrangler não publicar o padrão commitado `http://localhost:3000`. |
+| `DEMO_MODE` | Opcional. `true` mostra a faixa de demo pública; `false` desliga. Se estiver vazia, o CI não adiciona `DEMO_MODE` no Wrangler e passa `--keep-vars`, então um valor do painel permanece. |
+| `CLOUDFLARE_AUTO_DEPLOY` | Interruptor opcional. `false` pula o auto-deploy mesmo com os secrets da Cloudflare presentes. |
+
+**Permissões mínimas do API token**
+
+Crie o token em [Account API tokens](https://dash.cloudflare.com/profile/api-tokens):
+
+1. Use o template **Edit Cloudflare Workers** (Workers Scripts Edit + Account Settings Read).
+2. Adicione **Account → D1 → Edit** para as migrations remotas rodarem.
+
+**Ligar:** crie os três secrets e a variável `APP_URL`, depois dê push na `main`.
+
+**Desligar:** defina `CLOUDFLARE_AUTO_DEPLOY` como `false`, ou apague os três secrets da Cloudflare. Se só parte deles existir, o job **falha** para um setup incompleto ficar visível.
+
+O job de deploy:
+
+1. Reescreve `database_id`, `APP_URL` e, se houver, `DEMO_MODE` no `wrangler.jsonc` no runner (nada sensível é commitado).
+2. Aplica migrations remotas do D1 (`pnpm run db:migrate:remote`). SQL já aplicado é ignorado — seguro e idempotente.
+3. Faz o build OpenNext e o deploy com `opennextjs-cloudflare deploy -- --keep-vars` para não apagar vars só do painel, enquanto o `APP_URL` reescrito é o que o Wrangler envia.
+
+Os deploys compartilham um grupo de concorrência para dois pushes não publicarem ao mesmo tempo.
 
 ## Solução de problemas
 
