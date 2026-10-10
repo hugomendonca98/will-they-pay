@@ -146,7 +146,7 @@ export function SiteFooter() {
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
             <span className="inline-flex items-center gap-1.5">
               <Lock className="size-3.5" />
-              Pagamento seguro via Mercado Pago
+              Pagamento seguro
             </span>
             <Link href="/#contato" className="hover:text-foreground">Termos</Link>
             <Link href="/#contato" className="hover:text-foreground">Privacidade</Link>
@@ -198,7 +198,7 @@ export function SiteFooter() {
           <p>© 2026 Will They Pay. Todos os direitos reservados.</p>
           <p className="inline-flex items-center gap-1.5">
             <Lock className="size-3.5" />
-            Pagamentos processados pelo Mercado Pago
+            Pagamentos processados com segurança
           </p>
         </div>
       </div>

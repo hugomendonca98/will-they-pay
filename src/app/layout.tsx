@@ -19,7 +19,7 @@ const plusJakarta = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   title: "Will They Pay — SaaS para o Brasil",
   description:
-    "Template de SaaS com Next.js, Cloudflare Workers, D1, leads e Checkout Pro do Mercado Pago.",
+    "Template de SaaS com Next.js, Cloudflare Workers, D1, captura de leads e checkout integrado.",
 };
 
 export default function RootLayout({

@@ -79,7 +79,7 @@ export function PricingCards() {
                 onClick={() => openCheckout(plan.id)}
               >
                 <CreditCard data-icon="inline-start" />
-                Assinar com Mercado Pago
+                Assinar agora
               </Button>
               <ul className="space-y-3 text-sm">
                 {plan.features.map((feature) => (
@@ -103,7 +103,7 @@ export function PricingCards() {
                   Assinar plano {activePlan.name}
                 </DialogTitle>
                 <DialogDescription>
-                  Informe seus dados para continuar no Checkout Pro do Mercado Pago (
+                  Informe seus dados para continuar com o pagamento (
                   {activePlan.priceLabel}/mês).
                 </DialogDescription>
               </DialogHeader>
@@ -149,7 +149,7 @@ export function PricingCards() {
                   ) : null}
                 </div>
                 <Button type="submit" disabled={pending} className="h-11 w-full">
-                  {pending ? "Criando preferência..." : "Assinar com Mercado Pago"}
+                  {pending ? "Redirecionando..." : "Continuar para pagamento"}
                 </Button>
               </form>
             </>
@@ -159,8 +159,7 @@ export function PricingCards() {
 
       <p className="text-muted-foreground mx-auto mt-10 flex max-w-2xl items-start justify-center gap-2 text-center text-sm">
         <Lock className="mt-0.5 size-4 shrink-0" />
-        Pagamento seguro processado pelo Mercado Pago. Aceitamos Pix, cartão de crédito
-        em até 12x e boleto.
+        Pagamento seguro. Aceitamos Pix, cartão de crédito em até 12x e boleto.
       </p>
     </>
   );

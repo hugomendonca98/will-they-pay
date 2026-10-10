@@ -62,7 +62,7 @@ export async function startCheckout(
       return {
         status: "error",
         message:
-          "Pagamentos ainda não estão configurados. Defina as credenciais do Mercado Pago em .dev.vars ou como secrets do Worker.",
+          "Pagamentos ainda não estão configurados. Defina as credenciais do gateway em .dev.vars ou como secrets do Worker.",
       };
     }
 
@@ -70,7 +70,7 @@ export async function startCheckout(
     return {
       status: "error",
       message:
-        "Não foi possível iniciar o Checkout Pro agora. Confira as credenciais e tente novamente.",
+        "Não foi possível iniciar o checkout agora. Confira as credenciais e tente novamente.",
     };
   }
 }
