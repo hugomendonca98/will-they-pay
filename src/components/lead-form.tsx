@@ -15,6 +15,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { initialLeadFormState, submitLead } from "@/app/actions/leads";
+import { site } from "@/content/site";
+
+const formCopy = site.contact.form;
 
 export function LeadForm() {
   const [state, formAction, pending] = useActionState(submitLead, initialLeadFormState);
@@ -22,33 +25,31 @@ export function LeadForm() {
   return (
     <Card id="leads" className="border shadow-md">
       <CardHeader>
-        <CardTitle className="text-xl font-semibold">Envie uma mensagem</CardTitle>
-        <CardDescription>
-          Preencha os campos abaixo. Leva menos de 1 minuto.
-        </CardDescription>
+        <CardTitle className="text-xl font-semibold">{formCopy.title}</CardTitle>
+        <CardDescription>{formCopy.description}</CardDescription>
       </CardHeader>
       <form action={formAction}>
         <CardContent className="grid gap-4">
           {state.status === "success" ? (
             <Alert>
-              <AlertTitle>Mensagem enviada</AlertTitle>
+              <AlertTitle>{formCopy.successTitle}</AlertTitle>
               <AlertDescription>{state.message}</AlertDescription>
             </Alert>
           ) : null}
           {state.status === "error" ? (
             <Alert variant="destructive">
-              <AlertTitle>Não foi possível enviar</AlertTitle>
+              <AlertTitle>{formCopy.errorTitle}</AlertTitle>
               <AlertDescription>{state.message}</AlertDescription>
             </Alert>
           ) : null}
 
           <div className="grid gap-2">
-            <Label htmlFor="lead-name">Nome</Label>
+            <Label htmlFor="lead-name">{formCopy.nameLabel}</Label>
             <Input
               id="lead-name"
               name="name"
               autoComplete="name"
-              placeholder="Seu nome completo"
+              placeholder={formCopy.namePlaceholder}
               required
               aria-invalid={Boolean(state.fields?.name)}
             />
@@ -58,13 +59,13 @@ export function LeadForm() {
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="lead-email">E-mail</Label>
+            <Label htmlFor="lead-email">{formCopy.emailLabel}</Label>
             <Input
               id="lead-email"
               name="email"
               type="email"
               autoComplete="email"
-              placeholder="voce@empresa.com"
+              placeholder={formCopy.emailPlaceholder}
               required
               aria-invalid={Boolean(state.fields?.email)}
             />
@@ -74,13 +75,13 @@ export function LeadForm() {
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="lead-phone">WhatsApp (opcional)</Label>
+            <Label htmlFor="lead-phone">{formCopy.phoneLabel}</Label>
             <Input
               id="lead-phone"
               name="phone"
               type="tel"
               autoComplete="tel"
-              placeholder="(11) 99999-0000"
+              placeholder={formCopy.phonePlaceholder}
               aria-invalid={Boolean(state.fields?.phone)}
             />
             {state.fields?.phone ? (
@@ -89,12 +90,12 @@ export function LeadForm() {
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="lead-message">Mensagem</Label>
+            <Label htmlFor="lead-message">{formCopy.messageLabel}</Label>
             <Textarea
               id="lead-message"
               name="message"
               rows={4}
-              placeholder="Conte um pouco sobre o que você precisa..."
+              placeholder={formCopy.messagePlaceholder}
               aria-invalid={Boolean(state.fields?.message)}
             />
             {state.fields?.message ? (
@@ -103,15 +104,14 @@ export function LeadForm() {
           </div>
 
           <Button type="submit" disabled={pending} className="h-11 w-full">
-            {pending ? "Enviando..." : "Enviar mensagem"}
+            {pending ? formCopy.submitPending : formCopy.submitIdle}
             {!pending ? (
               <IconSetaDireita decorative className="size-4" data-icon="inline-end" />
             ) : null}
           </Button>
           <p className="text-muted-foreground flex items-start gap-2 text-xs">
             <IconCadeado decorative className="mt-0.5 size-3.5 shrink-0" />
-            Ao enviar, você concorda com nossa política de privacidade. Não compartilhamos
-            seus dados com terceiros.
+            {formCopy.privacyNote}
           </p>
         </CardContent>
       </form>

@@ -12,23 +12,19 @@ import {
   IconPagamentoRecusado,
   IconPix,
   IconSetaDireita,
-  IconSuporte,
 } from "@/components/icons";
+import { SiteCtaButton } from "@/components/marketing/site-cta";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Suspense } from "react";
-import { TEMPLATE_GITHUB_URL } from "@/lib/site";
+import { site } from "@/content/site";
 
 type CheckoutOutcome = "success" | "failure" | "pending";
 
-const FAILURE_REASONS = [
-  "Saldo ou limite do cartão insuficiente",
-  "Dados do cartão digitados incorretamente",
-  "Pagamento recusado pelo banco emissor",
-  "Tempo para concluir o pagamento expirou",
-] as const;
+const resultCopy = site.checkoutResult;
+const summaryCopy = resultCopy.summary;
 
 function firstQueryValue(value: string | string[] | undefined): string | undefined {
   if (Array.isArray(value)) return value[0];
@@ -40,11 +36,12 @@ function PaymentMethodDisplay({
 }: {
   outcome: CheckoutOutcome;
 }) {
+  const label = summaryCopy.methods[outcome];
   if (outcome === "success") {
     return (
       <span className="inline-flex items-center gap-1.5">
         <IconPix decorative className="size-4" />
-        Pix
+        {label}
       </span>
     );
   }
@@ -52,14 +49,14 @@ function PaymentMethodDisplay({
     return (
       <span className="inline-flex items-center gap-1.5">
         <IconBoleto decorative className="size-4" />
-        Boleto bancário
+        {label}
       </span>
     );
   }
   return (
     <span className="inline-flex items-center gap-1.5">
       <IconCartao decorative className="size-4" />
-      Cartão
+      {label}
     </span>
   );
 }
@@ -90,37 +87,34 @@ async function CheckoutResultDetails({
         ? "MP-1234567891"
         : undefined);
 
-  const planLabel = "Pro (mensal)";
-  const amountLabel = "R$ 97,00";
-
   return (
     <div className="rounded-lg bg-muted/60 px-4 py-1">
-      <SummaryRow label="Plano" value={planLabel} />
-      <SummaryRow label="Valor" value={amountLabel} />
+      <SummaryRow label={summaryCopy.planLabel} value={summaryCopy.demoPlan} />
+      <SummaryRow label={summaryCopy.amountLabel} value={summaryCopy.demoAmount} />
       <SummaryRow
-        label="Forma de pagamento"
+        label={summaryCopy.methodLabel}
         value={<PaymentMethodDisplay outcome={outcome} />}
       />
       {paymentId ? (
-        <SummaryRow label="ID do pagamento" value={paymentId} />
+        <SummaryRow label={summaryCopy.paymentIdLabel} value={paymentId} />
       ) : null}
       <SummaryRow
-        label="Status"
+        label={summaryCopy.statusLabel}
         value={
           outcome === "success" ? (
             <Badge variant="success">
               <IconCheck decorative className="size-3" />
-              Aprovado
+              {summaryCopy.statusApproved}
             </Badge>
           ) : outcome === "pending" ? (
             <Badge variant="warning">
               <IconPagamentoPendente decorative className="size-3" />
-              Em análise
+              {summaryCopy.statusPending}
             </Badge>
           ) : (
             <Badge variant="destructive">
               <IconPagamentoRecusado decorative className="size-3" />
-              Recusado
+              {summaryCopy.statusRejected}
             </Badge>
           )
         }
@@ -139,30 +133,6 @@ function OutcomeIcon({ outcome }: { outcome: CheckoutOutcome }) {
   return <IconPagamentoRecusado className="mx-auto size-16" />;
 }
 
-const COPY: Record<
-  CheckoutOutcome,
-  { title: string; description: string; hint: string }
-> = {
-  success: {
-    title: "Pagamento aprovado",
-    description:
-      "Obrigado pela sua assinatura! Seu acesso já está liberado e enviamos o recibo para o seu e-mail.",
-    hint: "Não recebeu o e-mail? Verifique a caixa de spam ou fale com o suporte.",
-  },
-  failure: {
-    title: "Pagamento não aprovado",
-    description:
-      "Não conseguimos concluir o seu pagamento. Nenhum valor foi cobrado — você pode tentar novamente.",
-    hint: "Dica: tente outro cartão ou pague com Pix para aprovação imediata.",
-  },
-  pending: {
-    title: "Pagamento em análise",
-    description:
-      "Recebemos o seu pedido e estamos aguardando a confirmação do pagamento.",
-    hint: "Você não precisa pagar novamente. Guarde o ID do pagamento para consultas.",
-  },
-};
-
 export function CheckoutResultPage({
   outcome,
   searchParams,
@@ -170,7 +140,7 @@ export function CheckoutResultPage({
   outcome: CheckoutOutcome;
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const copy = COPY[outcome];
+  const copy = resultCopy[outcome];
 
   return (
     <div className="mx-auto flex w-full max-w-lg flex-1 flex-col px-4 py-10 sm:py-16">
@@ -184,23 +154,19 @@ export function CheckoutResultPage({
             <p className="text-muted-foreground text-sm text-pretty">{copy.description}</p>
           </div>
 
-          {outcome === "pending" ? (
+          {outcome === "pending" && "alertTitle" in copy ? (
             <Alert variant="warning" className="text-left">
               <IconAlerta decorative className="size-4" />
-              <AlertTitle>Pix ou boleto podem levar um tempo</AlertTitle>
-              <AlertDescription>
-                Pagamentos via Pix costumam ser confirmados em poucos minutos. Boletos são
-                compensados em até 3 dias úteis. Avisaremos por e-mail assim que for
-                aprovado.
-              </AlertDescription>
+              <AlertTitle>{copy.alertTitle}</AlertTitle>
+              <AlertDescription>{copy.alertDescription}</AlertDescription>
             </Alert>
           ) : null}
 
-          {outcome === "failure" ? (
+          {outcome === "failure" && "reasonsTitle" in copy ? (
             <div className="rounded-lg bg-muted/60 px-4 py-4 text-left">
-              <p className="mb-3 text-sm font-semibold">Possíveis motivos</p>
+              <p className="mb-3 text-sm font-semibold">{copy.reasonsTitle}</p>
               <ul className="space-y-2.5">
-                {FAILURE_REASONS.map((reason) => (
+                {copy.reasons.map((reason) => (
                   <li key={reason} className="flex gap-2 text-sm">
                     <IconPagamentoRecusado
                       decorative
@@ -222,48 +188,37 @@ export function CheckoutResultPage({
           </Suspense>
 
           <div className="space-y-3 pt-2">
-            {outcome === "success" ? (
+            {outcome === "success" && "secondaryCta" in copy ? (
               <>
-                <Button
-                  className="h-11 w-full"
-                  render={
-                    <a
-                      href={TEMPLATE_GITHUB_URL}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    />
-                  }
-                >
-                  Ver o código no GitHub
+                <SiteCtaButton cta={copy.primaryCta} className="h-11 w-full">
                   <IconSetaDireita decorative className="size-4" data-icon="inline-end" />
-                </Button>
-                <Button variant="outline" className="h-11 w-full" render={<Link href="/" />}>
-                  Voltar para o início
-                </Button>
-              </>
-            ) : outcome === "failure" ? (
-              <>
-                <Button className="h-11 w-full" render={<Link href="/#precos" />}>
-                  <IconSetaDireita decorative className="size-4" data-icon="inline-start" />
-                  Tentar novamente
-                </Button>
-                <Button
+                </SiteCtaButton>
+                <SiteCtaButton
+                  cta={copy.secondaryCta}
                   variant="outline"
                   className="h-11 w-full"
-                  render={<Link href="/#contato" />}
-                >
-                  <IconSuporte decorative className="size-4" data-icon="inline-start" />
-                  Falar com o suporte
+                />
+              </>
+            ) : outcome === "failure" && "secondaryCta" in copy ? (
+              <>
+                <Button className="h-11 w-full" render={<Link href={copy.primaryCta.href} />}>
+                  <IconSetaDireita decorative className="size-4" data-icon="inline-start" />
+                  {copy.primaryCta.label}
                 </Button>
+                <SiteCtaButton
+                  cta={copy.secondaryCta}
+                  variant="outline"
+                  className="h-11 w-full"
+                />
               </>
             ) : (
-              <Button className="h-11 w-full" render={<Link href="/" />}>
+              <Button className="h-11 w-full" render={<Link href={copy.primaryCta.href} />}>
                 <IconSetaDireita
                   decorative
                   className="size-4 rotate-180"
                   data-icon="inline-start"
                 />
-                Voltar para o início
+                {copy.primaryCta.label}
               </Button>
             )}
           </div>

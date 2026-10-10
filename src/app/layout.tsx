@@ -4,6 +4,7 @@ import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import { SiteFooter, SiteHeader } from "@/components/site-chrome";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { site } from "@/content/site";
 import "./globals.css";
 
 const inter = Inter({
@@ -17,9 +18,8 @@ const plusJakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Will They Pay | Template de SaaS em Next.js com Pix e Cloudflare",
-  description:
-    "Template de SaaS para devs brasileiros: Next.js 16 na Cloudflare Workers, banco D1, checkout do Mercado Pago com Pix, cartão e boleto, captura de leads e testes.",
+  title: site.metadata.title,
+  description: site.metadata.description,
   manifest: "/site.webmanifest",
   icons: {
     icon: [
