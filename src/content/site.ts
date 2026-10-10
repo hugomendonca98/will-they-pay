@@ -65,7 +65,6 @@ export const site = {
       installMigrate: "pnpm install && pnpm db:migrate",
       deploy: "pnpm deploy",
       workerPublished: "Worker publicado em meu-saas.workers.dev",
-      webhookConfigured: "Webhook do Mercado Pago configurado",
     },
     migrationSuccessPrefix: "D1:",
     flowTitle: "Fluxo de validação incluso",

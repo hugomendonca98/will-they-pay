@@ -101,7 +101,6 @@ export function HeroVisual() {
           </TerminalLine>
           <TerminalLine>{copy.commands.deploy}</TerminalLine>
           <TerminalLine kind="success">{copy.commands.workerPublished}</TerminalLine>
-          <TerminalLine kind="success">{copy.commands.webhookConfigured}</TerminalLine>
           <TerminalLine kind="prompt">
             <span className="animate-pulse">▍</span>
           </TerminalLine>
