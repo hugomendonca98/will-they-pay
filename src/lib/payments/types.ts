@@ -89,7 +89,7 @@ export const SUBSCRIPTION_PLANS: Record<
     title: "Plano Starter (mensal)",
     features: [
       "Até 100 leads por mês",
-      "Checkout Pro integrado",
+      "Checkout integrado",
       "Suporte por e-mail",
       "Atualizações do template",
     ],
