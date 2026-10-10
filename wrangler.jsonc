@@ -3,7 +3,10 @@
   "name": "will-they-pay",
   "main": ".open-next/worker.js",
   "compatibility_date": "2026-10-07",
-  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "compatibility_flags": [
+    "nodejs_compat",
+    "global_fetch_strictly_public"
+  ],
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS",
@@ -21,7 +24,7 @@
   // Secrets (MERCADOPAGO_ACCESS_TOKEN, MERCADOPAGO_WEBHOOK_SECRET) must be
   // set with `wrangler secret put` and never committed here.
   "vars": {
-    "APP_URL": "http://localhost:3000",
+    "APP_URL": "https://will-they-pay.hugomendonca9.workers.dev/",
     "MERCADOPAGO_SANDBOX": "true",
   },
   "d1_databases": [
@@ -32,7 +35,7 @@
       // `pnpm wrangler d1 create will-they-pay`, replace this with the
       // printed database_id (or set CLOUDFLARE_D1_DATABASE_ID in your shell
       // / CI secrets and keep this placeholder locally).
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      "database_id": "3d0d78b5-6424-4dbd-9646-ef2cb2f2d50c",
       "migrations_dir": "drizzle",
     },
   ],
