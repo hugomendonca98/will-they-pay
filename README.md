@@ -45,21 +45,23 @@ UI copy is **Brazilian Portuguese**. Code, identifiers, and comments are **Engli
 
 | Command | What it does |
 | --- | --- |
-| `pnpm dev` | `next dev` — local Next.js with Cloudflare bindings via OpenNext dev integration |
-| `pnpm build` | `next build` |
-| `pnpm preview` | `opennextjs-cloudflare build` + `opennextjs-cloudflare preview` (Workers runtime locally) |
-| `pnpm deploy` | `opennextjs-cloudflare build` + `opennextjs-cloudflare deploy` |
-| `pnpm test` | Vitest (single run) |
-| `pnpm test:watch` | Vitest watch mode |
-| `pnpm typecheck` | `tsc --noEmit` |
-| `pnpm lint` | ESLint |
-| `pnpm format` | Prettier write |
-| `pnpm format:check` | Prettier check |
-| `pnpm db:generate` | `drizzle-kit generate` → SQL in `./drizzle` |
-| `pnpm db:migrate` | Apply migrations to **local** D1 (alias of `db:migrate:local`) |
-| `pnpm db:migrate:local` | `wrangler d1 migrations apply DB --local` |
-| `pnpm db:migrate:remote` | `wrangler d1 migrations apply DB --remote` |
-| `pnpm cf-typegen` | Regenerate `cloudflare-env.d.ts` from Wrangler bindings |
+| `pnpm run dev` | `next dev` — local Next.js with Cloudflare bindings via OpenNext dev integration |
+| `pnpm run build` | `next build` |
+| `pnpm run preview` | `opennextjs-cloudflare build` + `opennextjs-cloudflare preview` (Workers runtime locally) |
+| `pnpm run deploy` | `opennextjs-cloudflare build` + `opennextjs-cloudflare deploy` |
+| `pnpm run test` | Vitest (single run) |
+| `pnpm run test:watch` | Vitest watch mode |
+| `pnpm run typecheck` | `tsc --noEmit` |
+| `pnpm run lint` | ESLint |
+| `pnpm run format` | Prettier write |
+| `pnpm run format:check` | Prettier check |
+| `pnpm run db:generate` | `drizzle-kit generate` → SQL in `./drizzle` |
+| `pnpm run db:migrate` | Apply migrations to **local** D1 (alias of `db:migrate:local`) |
+| `pnpm run db:migrate:local` | `wrangler d1 migrations apply DB --local` |
+| `pnpm run db:migrate:remote` | `wrangler d1 migrations apply DB --remote` |
+| `pnpm run cf-typegen` | Regenerate `cloudflare-env.d.ts` from Wrangler bindings |
+
+Use `pnpm run <script>` for package scripts. pnpm ships a built-in `deploy` command (workspace deploy), so plain `pnpm deploy` does **not** run the `deploy` script in `package.json` and may fail with `ERR_PNPM_NOTHING_TO_DEPLOY`.
 
 ## Run locally (step by step)
 
@@ -85,7 +87,7 @@ Optional: copy `.env.example` to `.env.local` if you need Next-specific tooling;
 ### 3. Apply D1 migrations (local)
 
 ```bash
-pnpm db:migrate
+pnpm run db:migrate
 ```
 
 This uses the placeholder `database_id` in `wrangler.jsonc` — that is expected for **local** D1. Tables are created in Wrangler’s local D1 store.
@@ -93,7 +95,7 @@ This uses the placeholder `database_id` in `wrangler.jsonc` — that is expected
 ### 4. Start the dev server
 
 ```bash
-pnpm dev
+pnpm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000). In development, `next.config.ts` calls `initOpenNextCloudflareForDev()` so D1 and vars from `.dev.vars` are available to server code.
@@ -101,19 +103,19 @@ Open [http://localhost:3000](http://localhost:3000). In development, `next.confi
 ### 5. Preview on the Workers runtime (optional)
 
 ```bash
-pnpm preview
+pnpm run preview
 ```
 
-This builds the OpenNext output and runs Wrangler’s dev server. Check the terminal for the URL (commonly `http://localhost:8787`). If tables are missing, run `pnpm db:migrate:local` again against that local D1.
+This builds the OpenNext output and runs Wrangler’s dev server. Check the terminal for the URL (commonly `http://localhost:8787`). If tables are missing, run `pnpm run db:migrate:local` again against that local D1.
 
 Set `APP_URL` in `.dev.vars` to match the URL you use for checkout return links (no trailing slash).
 
 ### 6. Quality checks
 
 ```bash
-pnpm lint
-pnpm typecheck
-pnpm test
+pnpm run lint
+pnpm run typecheck
+pnpm run test
 ```
 
 CI runs the same three commands; tests use in-memory SQLite and MSW — they do **not** read `.dev.vars` or call Mercado Pago.
@@ -124,7 +126,7 @@ CI runs the same three commands; tests use in-memory SQLite and MSW — they do 
 
 | Name | Kind | Local | Production |
 | --- | --- | --- | --- |
-| `NEXTJS_ENV` | var | `.dev.vars` — use `development` for `pnpm dev` | Not required for deploy |
+| `NEXTJS_ENV` | var | `.dev.vars` — use `development` for `pnpm run dev` | Not required for deploy |
 | `APP_URL` | public var | `.dev.vars` — e.g. `http://localhost:3000` | `vars` in `wrangler.jsonc` (HTTPS URL, no trailing slash) |
 | `MERCADOPAGO_SANDBOX` | public var | `.dev.vars` — `true` for sandbox | `vars` in `wrangler.jsonc` — `true` or `false` |
 | `DEMO_MODE` | public var (optional) | `.dev.vars` — omit or `false` (default off) | `vars` in `wrangler.jsonc` or Cloudflare dashboard — set `"true"` only on a public demo deploy |
@@ -162,14 +164,14 @@ Copy the printed `database_id` into `wrangler.jsonc` under `d1_databases` (do no
 After schema changes:
 
 ```bash
-pnpm db:generate    # optional: generate SQL from Drizzle schema
-pnpm db:migrate:local   # local
-pnpm db:migrate:remote  # remote (requires wrangler login or CLOUDFLARE_API_TOKEN)
+pnpm run db:generate    # optional: generate SQL from Drizzle schema
+pnpm run db:migrate:local   # local
+pnpm run db:migrate:remote  # remote (requires wrangler login or CLOUDFLARE_API_TOKEN)
 ```
 
 ### Mercado Pago webhook (manual — not automatic)
 
-`pnpm deploy` **does not** register or configure webhooks in the Mercado Pago dashboard. You must do this yourself:
+`pnpm run deploy` **does not** register or configure webhooks in the Mercado Pago dashboard. You must do this yourself:
 
 1. Deploy (or use a tunnel) so `https://YOUR_DOMAIN/api/webhooks/mercadopago` is reachable.
 2. In Mercado Pago → **Webhooks** → configure notifications:
@@ -184,7 +186,7 @@ The handler validates `x-signature` (`ts=…,v1=…`), builds the manifest `id:{
 ### Test a payment in sandbox
 
 1. Keep `MERCADOPAGO_SANDBOX=true` and a **test** access token in `.dev.vars`.
-2. Run `pnpm dev` (or `pnpm preview` with matching `APP_URL`).
+2. Run `pnpm run dev` (or `pnpm run preview` with matching `APP_URL`).
 3. On the home page, use **Testar uma reserva** (scrolls to demo plans) or open `/#precos`, pick a plan, and complete Checkout Pro.
 4. Use Mercado Pago [test users](https://www.mercadopago.com.br/developers/en/docs/your-integrations/test/accounts) and [test cards](https://www.mercadopago.com.br/developers/en/docs/checkout-pro/additional-content/test-cards) as documented by Mercado Pago.
 
@@ -207,13 +209,13 @@ Demo plan prices are defined in `src/content/site.ts` (`site.pricing.plans`); th
 5. Apply migrations to production D1:
 
    ```bash
-   pnpm db:migrate:remote
+   pnpm run db:migrate:remote
    ```
 
 6. Deploy:
 
    ```bash
-   pnpm deploy
+   pnpm run deploy
    ```
 
 7. In the Mercado Pago panel, configure the webhook URL for your **deployed** domain (see [Mercado Pago webhook](#mercado-pago-webhook-manual--not-automatic)).
@@ -252,9 +254,9 @@ docs/                 README banners and docs assets
 
 Workflow: `.github/workflows/ci.yml` — on push to `main` and on pull requests:
 
-- `pnpm lint`
-- `pnpm typecheck`
-- `pnpm test`
+- `pnpm run lint`
+- `pnpm run typecheck`
+- `pnpm run test`
 
 No Mercado Pago or Cloudflare credentials are required for CI.
 
@@ -264,13 +266,15 @@ No Mercado Pago or Cloudflare credentials are required for CI.
 
 **Cache Components** — Not enabled: enabling Cache Components with this OpenNext version can hang the local Worker. See comments in `next.config.ts`.
 
-**Checkout fails immediately** — Check `.dev.vars` for real test tokens (not placeholders) and that `pnpm db:migrate` has been run.
+**Checkout fails immediately** — Check `.dev.vars` for real test tokens (not placeholders) and that `pnpm run db:migrate` has been run.
 
 **Webhook never updates orders** — Confirm the URL and secret in the Mercado Pago panel match production, and that the endpoint is HTTPS and publicly reachable.
 
+**`ERR_PNPM_NOTHING_TO_DEPLOY` when deploying** — You ran pnpm’s built-in `deploy` instead of the package script. Use `pnpm run deploy`.
+
 ## Contributing
 
-Issues and pull requests are welcome on [GitHub](https://github.com/hugomendonca98/will-they-pay). Keep secrets out of the tree; run `pnpm lint`, `pnpm typecheck`, and `pnpm test` before opening a PR.
+Issues and pull requests are welcome on [GitHub](https://github.com/hugomendonca98/will-they-pay). Keep secrets out of the tree; run `pnpm run lint`, `pnpm run typecheck`, and `pnpm run test` before opening a PR.
 
 ## License
 

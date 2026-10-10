@@ -69,8 +69,8 @@ export const site = {
     terminalTitle: "~/meu-saas",
     commands: {
       clone: "git clone will-they-pay meu-saas",
-      installMigrate: "pnpm install && pnpm db:migrate",
-      deploy: "pnpm deploy",
+      installMigrate: "pnpm install && pnpm run db:migrate",
+      deploy: "pnpm run deploy",
       workerPublished: "Worker publicado em meu-saas.workers.dev",
     },
     migrationSuccessPrefix: "D1:",
