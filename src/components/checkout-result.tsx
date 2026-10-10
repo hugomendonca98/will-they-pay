@@ -148,7 +148,7 @@ const COPY: Record<
   pending: {
     title: "Pagamento em análise",
     description:
-      "Recebemos o seu pedido e estamos aguardando a confirmação do pagamento pelo Mercado Pago.",
+      "Recebemos o seu pedido e estamos aguardando a confirmação do pagamento.",
     hint: "Você não precisa pagar novamente. Guarde o ID do pagamento para consultas.",
   },
 };

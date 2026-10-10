@@ -23,9 +23,9 @@ import {
 const FEATURES = [
   {
     icon: CreditCard,
-    title: "Pagamentos com Mercado Pago",
+    title: "Pagamentos integrados",
     description:
-      "Checkout Pro pronto para Pix, cartão e boleto. Webhook com validação de assinatura e pedidos no D1.",
+      "Checkout pronto para Pix, cartão e boleto. Webhook com validação de assinatura e pedidos no D1.",
   },
   {
     icon: Users,
@@ -43,14 +43,14 @@ const FEATURES = [
 
 const FAQ_ITEMS = [
   {
-    question: "Como funciona o pagamento pelo Mercado Pago?",
+    question: "Como funciona o pagamento?",
     answer:
-      "Ao assinar, você é redirecionado ao Checkout Pro do Mercado Pago. Após o pagamento, retornamos para páginas de sucesso, pendência ou falha e o webhook atualiza o status no D1.",
+      "Ao assinar, você é redirecionado ao checkout seguro. Após o pagamento, retornamos para páginas de sucesso, pendência ou falha e o webhook atualiza o status no D1.",
   },
   {
     question: "Posso pagar com Pix ou boleto?",
     answer:
-      "Sim. O Checkout Pro aceita Pix, cartão de crédito em até 12x e boleto bancário, conforme disponibilidade na sua conta Mercado Pago.",
+      "Sim. Aceitamos Pix, cartão de crédito em até 12x e boleto bancário, conforme disponibilidade no gateway configurado.",
   },
   {
     question: "Posso cancelar quando quiser?",
@@ -160,7 +160,7 @@ export function PricingSection() {
             Planos simples, sem surpresas
           </h2>
           <p className="text-muted-foreground mt-4 text-pretty">
-            Escolha o plano ideal e assine com Checkout Pro. Valores de exemplo para o
+            Escolha o plano ideal e assine em poucos cliques. Valores de exemplo para o
             template.
           </p>
         </div>
