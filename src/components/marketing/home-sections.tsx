@@ -1,13 +1,15 @@
 import Link from "next/link";
+import type { ComponentType } from "react";
 import {
-  ArrowRight,
-  Check,
-  CreditCard,
-  MessageCircle,
-  Shield,
-  Sparkles,
-  Users,
-} from "lucide-react";
+  IconCartao,
+  IconCheck,
+  IconEscudo,
+  IconRaio,
+  IconSetaDireita,
+  IconSuporte,
+  IconUsuarios,
+  type WtpIconProps,
+} from "@/components/icons";
 import { HeroDashboardPreview } from "@/components/marketing/hero-dashboard";
 import { LeadForm } from "@/components/lead-form";
 import { PricingCards } from "@/components/pricing-cards";
@@ -20,21 +22,25 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-const FEATURES = [
+const FEATURES: {
+  icon: ComponentType<WtpIconProps>;
+  title: string;
+  description: string;
+}[] = [
   {
-    icon: CreditCard,
+    icon: IconCartao,
     title: "Pagamentos integrados",
     description:
       "Checkout pronto para Pix, cartão e boleto. Webhook com validação de assinatura e pedidos no D1.",
   },
   {
-    icon: Users,
+    icon: IconUsuarios,
     title: "Captura de leads",
     description:
       "Formulário validado no servidor, persistência no D1 e mensagens de sucesso pensadas para conversão.",
   },
   {
-    icon: Shield,
+    icon: IconEscudo,
     title: "Pronto para produção",
     description:
       "Next.js 16, Workers, Drizzle e testes com Vitest. Credenciais em secrets — nunca no repositório.",
@@ -69,7 +75,7 @@ export function HeroSection() {
     <section className="mx-auto grid w-full max-w-6xl gap-12 px-4 py-16 lg:grid-cols-2 lg:items-center lg:gap-16 lg:px-8 lg:py-24">
       <div className="space-y-6">
         <Badge variant="gold" className="h-7 gap-1.5 px-3 py-1 text-xs font-semibold">
-          <Sparkles className="size-3.5" />
+          <IconRaio decorative className="size-3.5" />
           Template SaaS pronto para o Brasil
         </Badge>
         <h1 className="font-heading text-4xl font-bold tracking-tight text-balance sm:text-5xl lg:text-[3.25rem] lg:leading-[1.1]">
@@ -83,7 +89,7 @@ export function HeroSection() {
         <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <Button size="lg" className="h-11 px-5" render={<Link href="/#precos" />}>
             Começar agora
-            <ArrowRight data-icon="inline-end" />
+            <IconSetaDireita decorative className="size-4" data-icon="inline-end" />
           </Button>
           <Button
             size="lg"
@@ -98,7 +104,7 @@ export function HeroSection() {
           {["Pix, cartão e boleto", "Sem fidelidade", "Pronto em 5 min"].map((item) => (
             <li key={item} className="inline-flex items-center gap-2">
               <span className="flex size-5 items-center justify-center rounded-full bg-success text-success-foreground">
-                <Check className="size-3" strokeWidth={3} />
+                <IconCheck decorative className="size-3" />
               </span>
               {item}
             </li>
@@ -131,7 +137,7 @@ export function FeaturesSection() {
             <Card key={feature.title} className="h-full border bg-card shadow-sm">
               <CardHeader>
                 <span className="mb-2 flex size-11 items-center justify-center rounded-lg bg-success/80 text-success-foreground">
-                  <feature.icon className="size-5" />
+                  <feature.icon decorative className="size-5" />
                 </span>
                 <CardTitle className="text-lg font-semibold">{feature.title}</CardTitle>
               </CardHeader>
@@ -188,7 +194,7 @@ export function ContactSection() {
           <ul className="space-y-4">
             <li className="flex gap-3">
               <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                <MessageCircle className="size-5" />
+                <IconSuporte decorative className="size-5" />
               </span>
               <div>
                 <p className="font-medium">Resposta em até 1 dia útil</p>
@@ -199,7 +205,7 @@ export function ContactSection() {
             </li>
             <li className="flex gap-3">
               <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                <Shield className="size-5" />
+                <IconEscudo decorative className="size-5" />
               </span>
               <div>
                 <p className="font-medium">Seus dados protegidos</p>

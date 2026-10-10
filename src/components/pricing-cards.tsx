@@ -1,7 +1,12 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { Check, CreditCard, Lock, Sparkles } from "lucide-react";
+import {
+  IconCartao,
+  IconCadeado,
+  IconCheck,
+  IconMoedas,
+} from "@/components/icons";
 import { initialCheckoutFormState, startCheckout } from "@/app/actions/checkout";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -60,7 +65,7 @@ export function PricingCards() {
                 variant="gold"
                 className="absolute top-4 right-4 gap-1 border-transparent"
               >
-                <Sparkles className="size-3" />
+                <IconMoedas decorative className="size-3" />
                 Mais popular
               </Badge>
             ) : null}
@@ -78,13 +83,13 @@ export function PricingCards() {
                 className="h-11 w-full"
                 onClick={() => openCheckout(plan.id)}
               >
-                <CreditCard data-icon="inline-start" />
+                <IconCartao decorative className="size-4" data-icon="inline-start" />
                 Assinar agora
               </Button>
               <ul className="space-y-3 text-sm">
                 {plan.features.map((feature) => (
                   <li key={feature} className="flex gap-2">
-                    <Check className="mt-0.5 size-4 shrink-0 text-primary" />
+                    <IconCheck decorative className="mt-0.5 size-4 shrink-0 text-primary" />
                     <span>{feature}</span>
                   </li>
                 ))}
@@ -158,7 +163,7 @@ export function PricingCards() {
       </Dialog>
 
       <p className="text-muted-foreground mx-auto mt-10 flex max-w-2xl items-start justify-center gap-2 text-center text-sm">
-        <Lock className="mt-0.5 size-4 shrink-0" />
+        <IconCadeado decorative className="mt-0.5 size-4 shrink-0" />
         Pagamento seguro. Aceitamos Pix, cartão de crédito em até 12x e boleto.
       </p>
     </>

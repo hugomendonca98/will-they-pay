@@ -1,8 +1,8 @@
 "use client";
 
-import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useSyncExternalStore } from "react";
+import { IconLua, IconSol } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 
 const emptySubscribe = () => () => {};
@@ -30,9 +30,10 @@ export function ThemeToggle() {
       size="icon"
       className="size-10"
       aria-label={isDark ? "Ativar tema claro" : "Ativar tema escuro"}
+      title={isDark ? "Tema claro" : "Tema escuro"}
       onClick={() => setTheme(isDark ? "light" : "dark")}
     >
-      {isDark ? <Sun /> : <Moon />}
+      {isDark ? <IconSol decorative className="size-4" /> : <IconLua decorative className="size-4" />}
     </Button>
   );
 }
