@@ -1,4 +1,4 @@
-# Copy this file to `.dev.vars` (gitignored) before `pnpm dev` or `pnpm preview`.
+# Copy this file to `.dev.vars` (gitignored) before `pnpm run dev` or `pnpm run preview`.
 # `.dev.vars` is loaded by Wrangler / OpenNext as Worker secrets+vars locally.
 #
 # NEVER put real tokens in git. Production values go in Cloudflare with:
