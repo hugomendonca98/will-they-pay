@@ -1,6 +1,6 @@
 ![Will They Pay — open source waitlist and pre-sale template for validating SaaS ideas](docs/banner-en.png)
 
-**[Read in Brazilian Portuguese (README.pt-BR.md)](README.pt-BR.md)**
+**[Read in Brazilian Portuguese (README.pt-BR.md)](README.pt-BR.md)** · [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 **Find out if people will pay for your SaaS before you build it.**
 
@@ -265,4 +265,4 @@ Issues and pull requests are welcome on [GitHub](https://github.com/hugomendonca
 
 ## License
 
-License to be defined.
+This project is licensed under the [MIT License](LICENSE).

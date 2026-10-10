@@ -1,6 +1,6 @@
 ![Will They Pay — template open source de lista de espera e pré-venda para validar ideias de SaaS](docs/banner-pt-BR.png)
 
-**[Ler em inglês (README.md)](README.md)**
+**[Ler em inglês (README.md)](README.md)** · [![Licença MIT](https://img.shields.io/badge/Licen%C3%A7a-MIT-green.svg)](LICENSE)
 
 **Descubra se vão pagar pelo seu SaaS antes de construir.**
 
@@ -265,4 +265,4 @@ Issues e pull requests são bem-vindos no [GitHub](https://github.com/hugomendon
 
 ## Licença
 
-Licença a definir.
+Este projeto está sob a [licença MIT](LICENSE).
