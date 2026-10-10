@@ -26,6 +26,7 @@
   "vars": {
     "APP_URL": "https://will-they-pay.hugomendonca9.workers.dev/",
     "MERCADOPAGO_SANDBOX": "true",
+    "DEMO_MODE": "true"
   },
   "d1_databases": [
     {
