@@ -7,7 +7,7 @@ import { MissingSecretError, ValidationError } from "@/lib/errors";
 import { parseCheckoutInput } from "@/lib/payments/checkout-schema";
 import { createHttpMercadoPagoClient } from "@/lib/payments/client";
 import { createCheckoutPreference } from "@/lib/payments/service";
-import { DEMO_PRODUCT } from "@/lib/payments/types";
+import { resolveCheckoutItem } from "@/lib/payments/types";
 
 export type CheckoutFormState = {
   status: "idle" | "error";
@@ -33,10 +33,13 @@ export async function startCheckout(
       accessToken: env.mercadoPagoAccessToken,
     });
 
+    const planId = String(formData.get("plan") ?? "").trim() || undefined;
+    const item = resolveCheckoutItem(planId);
+
     const { checkoutUrl } = await createCheckoutPreference(
       {
         customer,
-        item: { ...DEMO_PRODUCT },
+        item,
         appUrl: env.appUrl,
         sandbox: env.mercadoPagoSandbox,
       },
