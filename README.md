@@ -6,6 +6,18 @@ Stack: **Next.js 16** (App Router, pin 16.3.8 — ver nota abaixo) + **Cloudflar
 
 Este repositório é público. **Nenhum token, secret, account id ou database id real entra no git.**
 
+## Personalizando o conteúdo
+
+Para rebrandar o template sem caçar strings na UI:
+
+1. **`src/content/site.ts`** — nome do produto, URLs (GitHub, issues), textos da home, FAQ, formulários, planos de exemplo do checkout e cópia das páginas de retorno do pagamento.
+2. **`src/app/globals.css`** — tokens de cor e tipografia (marca primária, sucesso, etc.).
+3. **`public/brand/`** — logos e favicons (os caminhos padrão estão em `site.brand`).
+
+O hero usa o componente `HeroVisual` (`src/components/marketing/hero-visual.tsx`). Troque por um screenshot do seu produto se preferir.
+
+Os planos na seção de preços são **só demonstração** do Checkout Pro; os valores reais do checkout vêm dos mesmos registros em `site.pricing.plans`.
+
 ## O que já vem pronto
 
 - Captura de leads (nome, e-mail, telefone e mensagem) com validação Zod no servidor, `server action` e persistência no D1.

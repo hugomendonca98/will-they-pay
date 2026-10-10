@@ -1,9 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
+import { site } from "@/content/site";
 import { cn } from "@/lib/utils";
 import { WTP_ICON_LABELS } from "@/components/icons/icon-labels";
 
-const logoLabel = WTP_ICON_LABELS["logo-mark"]?.ariaLabel ?? "Will They Pay, página inicial";
+const logoLabel =
+  WTP_ICON_LABELS["logo-mark"]?.ariaLabel ?? `${site.name}, página inicial`;
 
 export function BrandLogo({
   className,
@@ -12,6 +14,8 @@ export function BrandLogo({
   className?: string;
   href?: string;
 }) {
+  const { logoLight, logoDark } = site.brand;
+
   return (
     <Link
       href={href}
@@ -20,7 +24,7 @@ export function BrandLogo({
     >
       <span className="relative size-9 shrink-0" aria-hidden>
         <Image
-          src="/brand/logo-mark-color.svg"
+          src={logoLight}
           alt=""
           width={36}
           height={36}
@@ -28,7 +32,7 @@ export function BrandLogo({
           priority
         />
         <Image
-          src="/brand/logo-mark-color-dark.svg"
+          src={logoDark}
           alt=""
           width={36}
           height={36}
@@ -37,7 +41,7 @@ export function BrandLogo({
         />
       </span>
       <span className="font-heading text-base font-bold tracking-tight">
-        Will They Pay
+        {site.name}
       </span>
     </Link>
   );

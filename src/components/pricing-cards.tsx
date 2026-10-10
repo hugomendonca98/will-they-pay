@@ -22,12 +22,20 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  SUBSCRIPTION_PLANS,
+  site,
+  subscriptionPlans,
   type SubscriptionPlanId,
-} from "@/lib/payments/types";
+} from "@/content/site";
 import { cn } from "@/lib/utils";
 
-const plans = Object.values(SUBSCRIPTION_PLANS);
+const pricingCopy = site.pricing;
+const plans = subscriptionPlans;
+
+function isHighlightedPlan(
+  plan: (typeof plans)[number],
+): plan is (typeof plans)[number] & { highlighted: true; highlightLabel?: string } {
+  return "highlighted" in plan && plan.highlighted === true;
+}
 
 export function PricingCards() {
   const [checkoutPlanId, setCheckoutPlanId] = useState<SubscriptionPlanId | null>(
@@ -39,7 +47,8 @@ export function PricingCards() {
   );
 
   const open = checkoutPlanId !== null;
-  const activePlan = checkoutPlanId ? SUBSCRIPTION_PLANS[checkoutPlanId] : null;
+  const activePlan = checkoutPlanId ? site.pricing.plans[checkoutPlanId] : null;
+  const dialog = pricingCopy.dialog;
 
   function openCheckout(planId: SubscriptionPlanId) {
     setCheckoutPlanId(planId);
@@ -57,16 +66,16 @@ export function PricingCards() {
             key={plan.id}
             className={cn(
               "relative h-full border shadow-sm",
-              plan.highlighted && "border-primary ring-2 ring-primary/20",
+              isHighlightedPlan(plan) && "border-primary ring-2 ring-primary/20",
             )}
           >
-            {plan.highlighted ? (
+            {isHighlightedPlan(plan) && plan.highlightLabel ? (
               <Badge
                 variant="gold"
                 className="absolute top-4 right-4 gap-1 border-transparent"
               >
                 <IconMoedas decorative className="size-3" />
-                Mais popular
+                {plan.highlightLabel}
               </Badge>
             ) : null}
             <CardHeader className="space-y-4 pb-2">
@@ -79,12 +88,12 @@ export function PricingCards() {
             <CardContent className="space-y-6">
               <Button
                 type="button"
-                variant={plan.highlighted ? "default" : "outline"}
+                variant={isHighlightedPlan(plan) ? "default" : "outline"}
                 className="h-11 w-full"
                 onClick={() => openCheckout(plan.id)}
               >
                 <IconCartao decorative className="size-4" data-icon="inline-start" />
-                Assinar agora
+                {pricingCopy.cta}
               </Button>
               <ul className="space-y-3 text-sm">
                 {plan.features.map((feature) => (
@@ -105,11 +114,10 @@ export function PricingCards() {
             <>
               <DialogHeader className="border-b px-6 py-5 text-left">
                 <DialogTitle className="text-lg font-semibold">
-                  Assinar plano {activePlan.name}
+                  {dialog.title(activePlan.name)}
                 </DialogTitle>
                 <DialogDescription>
-                  Informe seus dados para continuar com o pagamento (
-                  {activePlan.priceLabel}/mês).
+                  {dialog.description(activePlan.priceLabel)}
                 </DialogDescription>
               </DialogHeader>
               <form
@@ -120,17 +128,17 @@ export function PricingCards() {
                 <input type="hidden" name="plan" value={activePlan.id} />
                 {state.status === "error" ? (
                   <Alert variant="destructive">
-                    <AlertTitle>Não foi possível ir ao pagamento</AlertTitle>
+                    <AlertTitle>{dialog.errorTitle}</AlertTitle>
                     <AlertDescription>{state.message}</AlertDescription>
                   </Alert>
                 ) : null}
                 <div className="grid gap-2">
-                  <Label htmlFor="checkout-name">Nome</Label>
+                  <Label htmlFor="checkout-name">{dialog.nameLabel}</Label>
                   <Input
                     id="checkout-name"
                     name="name"
                     autoComplete="name"
-                    placeholder="Seu nome completo"
+                    placeholder={dialog.namePlaceholder}
                     required
                     aria-invalid={Boolean(state.fields?.name)}
                   />
@@ -139,13 +147,13 @@ export function PricingCards() {
                   ) : null}
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="checkout-email">E-mail</Label>
+                  <Label htmlFor="checkout-email">{dialog.emailLabel}</Label>
                   <Input
                     id="checkout-email"
                     name="email"
                     type="email"
                     autoComplete="email"
-                    placeholder="voce@empresa.com"
+                    placeholder={dialog.emailPlaceholder}
                     required
                     aria-invalid={Boolean(state.fields?.email)}
                   />
@@ -154,7 +162,7 @@ export function PricingCards() {
                   ) : null}
                 </div>
                 <Button type="submit" disabled={pending} className="h-11 w-full">
-                  {pending ? "Redirecionando..." : "Continuar para pagamento"}
+                  {pending ? dialog.submitPending : dialog.submitIdle}
                 </Button>
               </form>
             </>
@@ -164,7 +172,7 @@ export function PricingCards() {
 
       <p className="text-muted-foreground mx-auto mt-10 flex max-w-2xl items-start justify-center gap-2 text-center text-sm">
         <IconCadeado decorative className="mt-0.5 size-4 shrink-0" />
-        Pagamento seguro. Aceitamos Pix, cartão e boleto.
+        {pricingCopy.footnote}
       </p>
     </>
   );
