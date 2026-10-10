@@ -26,6 +26,7 @@
   "vars": {
     "APP_URL": "http://localhost:3000",
     "MERCADOPAGO_SANDBOX": "true",
+    "DEMO_MODE": "true"
   },
   "d1_databases": [
     {
