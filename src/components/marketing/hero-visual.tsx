@@ -16,6 +16,7 @@ const MIGRATION_LABEL =
     ? "1 migração aplicada"
     : `${D1_MIGRATION_COUNT} migrações aplicadas`;
 
+/** Terminal palette is fixed (not theme tokens) so commands stay readable on zinc-950 in light mode. */
 function TerminalLine({
   kind = "command",
   children,
@@ -27,15 +28,15 @@ function TerminalLine({
     <p
       className={cn(
         "font-mono text-[13px] leading-relaxed sm:text-sm",
-        kind === "success" && "text-success-foreground",
-        kind === "prompt" && "text-gold",
-        kind === "command" && "text-foreground",
+        kind === "success" && "text-emerald-400",
+        kind === "prompt" && "text-amber-300",
+        kind === "command" && "text-zinc-100",
       )}
     >
       {kind === "command" || kind === "prompt" ? (
-        <span className="text-primary">$ </span>
+        <span className="text-emerald-500">$ </span>
       ) : (
-        <span className="text-primary">✓ </span>
+        <span className="text-emerald-500">✓ </span>
       )}
       {children}
     </p>
@@ -90,7 +91,7 @@ function FlowStep({
 export function HeroVisual() {
   return (
     <div className="relative mx-auto w-full max-w-xl lg:max-w-none">
-      <Card className="overflow-hidden border-0 bg-zinc-950 text-zinc-50 shadow-xl ring-1 ring-white/10">
+      <Card className="overflow-hidden border-0 bg-zinc-950 text-zinc-100 shadow-xl ring-1 ring-white/10">
         <div className="flex items-center gap-2 border-b border-white/10 px-4 py-3">
           <span className="size-2.5 rounded-full bg-[#ff5f57]" aria-hidden />
           <span className="size-2.5 rounded-full bg-[#febc2e]" aria-hidden />
