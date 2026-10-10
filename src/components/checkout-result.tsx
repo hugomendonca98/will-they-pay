@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Suspense } from "react";
+import { TEMPLATE_GITHUB_URL } from "@/lib/site";
 
 type CheckoutOutcome = "success" | "failure" | "pending";
 
@@ -222,10 +223,24 @@ export function CheckoutResultPage({
 
           <div className="space-y-3 pt-2">
             {outcome === "success" ? (
-              <Button className="h-11 w-full" render={<Link href="/#contato" />}>
-                Acessar minha conta
-                <IconSetaDireita decorative className="size-4" data-icon="inline-end" />
-              </Button>
+              <>
+                <Button
+                  className="h-11 w-full"
+                  render={
+                    <a
+                      href={TEMPLATE_GITHUB_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    />
+                  }
+                >
+                  Ver o código no GitHub
+                  <IconSetaDireita decorative className="size-4" data-icon="inline-end" />
+                </Button>
+                <Button variant="outline" className="h-11 w-full" render={<Link href="/" />}>
+                  Voltar para o início
+                </Button>
+              </>
             ) : outcome === "failure" ? (
               <>
                 <Button className="h-11 w-full" render={<Link href="/#precos" />}>
@@ -251,11 +266,6 @@ export function CheckoutResultPage({
                 Voltar para o início
               </Button>
             )}
-            {outcome === "success" ? (
-              <Button variant="link" className="w-full" render={<Link href="/" />}>
-                Voltar para o início
-              </Button>
-            ) : null}
           </div>
         </CardContent>
       </Card>

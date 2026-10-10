@@ -4,13 +4,12 @@ import {
   IconCartao,
   IconCheck,
   IconEscudo,
-  IconRaio,
   IconSetaDireita,
   IconSuporte,
   IconUsuarios,
   type WtpIconProps,
 } from "@/components/icons";
-import { HeroDashboardPreview } from "@/components/marketing/hero-dashboard";
+import { HeroTemplateShowcase } from "@/components/marketing/hero-template-showcase";
 import { LeadForm } from "@/components/lead-form";
 import { PricingCards } from "@/components/pricing-cards";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +21,22 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { TEMPLATE_GITHUB_URL } from "@/lib/site";
+
+const STACK_CHIPS = [
+  "Next.js 16",
+  "Cloudflare Workers",
+  "D1",
+  "Mercado Pago",
+  "Tailwind + shadcn",
+] as const;
+
+const HERO_CHECKLIST = [
+  "Pix, cartão e boleto pelo Mercado Pago",
+  "Deploy na Cloudflare Workers",
+  "Testes com Vitest",
+] as const;
+
 const FEATURES: {
   icon: ComponentType<WtpIconProps>;
   title: string;
@@ -29,89 +44,118 @@ const FEATURES: {
 }[] = [
   {
     icon: IconCartao,
-    title: "Pagamentos integrados",
+    title: "Checkout com Pix, cartão e boleto",
     description:
-      "Checkout pronto para Pix, cartão e boleto. Webhook com validação de assinatura e pedidos no D1.",
+      "Checkout Pro do Mercado Pago integrado, com webhook que valida a assinatura e grava o status do pedido no D1.",
   },
   {
     icon: IconUsuarios,
     title: "Captura de leads",
     description:
-      "Formulário validado no servidor, persistência no D1 e mensagens de sucesso pensadas para conversão.",
+      "Formulário validado no servidor e salvo no D1. É o mesmo que está no fim desta página.",
   },
   {
     icon: IconEscudo,
-    title: "Pronto para produção",
+    title: "Pronto pra produção na Cloudflare",
     description:
-      "Next.js 16, Workers, Drizzle e testes com Vitest. Credenciais em secrets — nunca no repositório.",
+      "Next.js 16 em Workers, Drizzle e testes com Vitest. As credenciais ficam em secrets, nunca no repositório.",
   },
-] as const;
+];
 
 const FAQ_ITEMS = [
+  {
+    question: "O que é o Will They Pay?",
+    answer:
+      "Um template de SaaS em Next.js pra quem quer lançar produto no Brasil. Ele já vem com checkout do Mercado Pago, banco D1, formulário de leads, páginas de retorno do pagamento e testes, tudo rodando na Cloudflare.",
+  },
+  {
+    question: "O que eu preciso fazer depois de clonar?",
+    answer:
+      "Configurar suas credenciais do Mercado Pago e da Cloudflare como secrets, trocar textos, cores e planos, e fazer o deploy com pnpm deploy.",
+  },
   {
     question: "Como funciona o pagamento?",
     answer:
       "Ao assinar, você é redirecionado ao checkout seguro. Após o pagamento, retornamos para páginas de sucesso, pendência ou falha e o webhook atualiza o status no D1.",
   },
   {
-    question: "Posso pagar com Pix ou boleto?",
+    question: "Ele emite nota fiscal?",
     answer:
-      "Sim. Aceitamos Pix, cartão de crédito em até 12x e boleto bancário, conforme disponibilidade no gateway configurado.",
-  },
-  {
-    question: "Posso cancelar quando quiser?",
-    answer:
-      "Sim. Não há fidelidade neste template — adapte a política de cancelamento ao seu produto real.",
-  },
-  {
-    question: "Vocês emitem nota fiscal?",
-    answer:
-      "Este é um template de demonstração. Configure emissão de NF-e ou NFS-e conforme o regime da sua empresa.",
+      "Não. A emissão de NF-e ou NFS-e depende do regime da sua empresa e fica por sua conta.",
   },
 ] as const;
 
 export function HeroSection() {
   return (
-    <section className="mx-auto grid w-full max-w-6xl gap-12 px-4 py-16 lg:grid-cols-2 lg:items-center lg:gap-16 lg:px-8 lg:py-24">
-      <div className="space-y-6">
-        <Badge variant="gold" className="h-7 gap-1.5 px-3 py-1 text-xs font-semibold">
-          <IconRaio decorative className="size-3.5" />
-          Template SaaS pronto para o Brasil
-        </Badge>
-        <h1 className="font-heading text-4xl font-bold tracking-tight text-balance sm:text-5xl lg:text-[3.25rem] lg:leading-[1.1]">
-          Seu produto resolve X em minutos, não em semanas
-        </h1>
-        <p className="text-muted-foreground max-w-xl text-lg text-pretty">
-          Descreva aqui a principal dor do seu cliente e como o seu SaaS a elimina.
-          Substitua este texto pela proposta de valor do seu produto em uma ou duas
-          frases.
-        </p>
-        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-          <Button size="lg" className="h-11 px-5" render={<Link href="/#precos" />}>
-            Começar agora
-            <IconSetaDireita decorative className="size-4" data-icon="inline-end" />
-          </Button>
-          <Button
-            size="lg"
-            variant="outline"
-            className="h-11 px-5"
-            render={<Link href="/#recursos" />}
-          >
-            Ver demonstração
-          </Button>
+    <section
+      className="relative border-b bg-[radial-gradient(ellipse_85%_60%_at_75%_0%,color-mix(in_oklch,var(--success),transparent_72%),transparent)] dark:bg-[radial-gradient(ellipse_85%_60%_at_75%_0%,color-mix(in_oklch,var(--success),transparent_88%),transparent)]"
+    >
+      <div className="mx-auto grid w-full max-w-6xl gap-12 px-4 py-16 lg:grid-cols-2 lg:items-center lg:gap-16 lg:px-8 lg:py-20">
+        <div className="space-y-6">
+          <Badge variant="gold" className="h-7 px-3 py-1 text-xs font-semibold">
+            Template Next.js + Cloudflare para o Brasil
+          </Badge>
+          <h1 className="font-heading text-4xl font-bold tracking-tight text-balance sm:text-5xl lg:text-[3.25rem] lg:leading-[1.08]">
+            O template de SaaS que já nasce cobrando em{" "}
+            <span className="text-primary">Pix</span>
+          </h1>
+          <p className="text-muted-foreground max-w-xl text-lg text-pretty">
+            Next.js 16 rodando na Cloudflare, banco D1, checkout do Mercado Pago com
+            Pix, cartão e boleto, formulário de leads e testes. Você clona, troca os
+            textos e começa a vender.
+          </p>
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            <Button
+              size="lg"
+              className="h-11 px-5"
+              render={
+                <a
+                  href={TEMPLATE_GITHUB_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                />
+              }
+            >
+              Usar o template
+              <IconSetaDireita decorative className="size-4" data-icon="inline-end" />
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              className="h-11 px-5"
+              render={<Link href="/#precos" />}
+            >
+              Testar o checkout
+            </Button>
+          </div>
+          <div className="space-y-3">
+            <p className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
+              Vem com
+            </p>
+            <ul className="flex flex-wrap gap-2">
+              {STACK_CHIPS.map((chip) => (
+                <li
+                  key={chip}
+                  className="rounded-lg border bg-card px-3 py-1.5 text-xs font-semibold shadow-sm"
+                >
+                  {chip}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <ul className="flex flex-col gap-2 text-sm sm:gap-y-2">
+            {HERO_CHECKLIST.map((item) => (
+              <li key={item} className="inline-flex items-center gap-2">
+                <span className="flex size-5 items-center justify-center rounded-full bg-success text-success-foreground">
+                  <IconCheck decorative className="size-3" />
+                </span>
+                {item}
+              </li>
+            ))}
+          </ul>
         </div>
-        <ul className="flex flex-col gap-2 text-sm sm:flex-row sm:flex-wrap sm:gap-x-6">
-          {["Pix, cartão e boleto", "Sem fidelidade", "Pronto em 5 min"].map((item) => (
-            <li key={item} className="inline-flex items-center gap-2">
-              <span className="flex size-5 items-center justify-center rounded-full bg-success text-success-foreground">
-                <IconCheck decorative className="size-3" />
-              </span>
-              {item}
-            </li>
-          ))}
-        </ul>
+        <HeroTemplateShowcase />
       </div>
-      <HeroDashboardPreview />
     </section>
   );
 }
@@ -122,14 +166,14 @@ export function FeaturesSection() {
       <div className="mx-auto w-full max-w-6xl px-4 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-primary text-xs font-semibold tracking-widest uppercase">
-            Recursos
+            O que vem pronto
           </p>
           <h2 className="font-heading mt-3 text-3xl font-bold tracking-tight text-balance sm:text-4xl">
-            Tudo o que você precisa para começar a vender
+            A parte chata já está feita
           </h2>
           <p className="text-muted-foreground mt-4 text-pretty">
-            Stack moderna, integrações brasileiras e componentes prontos para você
-            focar no produto.
+            Pagamento, banco, leads e deploy configurados. Sobra o que só você sabe
+            fazer: o produto.
           </p>
         </div>
         <div className="mt-12 grid gap-6 md:grid-cols-3">
@@ -160,14 +204,14 @@ export function PricingSection() {
       <div className="mx-auto w-full max-w-6xl px-4 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-primary text-xs font-semibold tracking-widest uppercase">
-            Preços
+            Checkout
           </p>
           <h2 className="font-heading mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
-            Planos simples, sem surpresas
+            Teste o fluxo de pagamento
           </h2>
           <p className="text-muted-foreground mt-4 text-pretty">
-            Escolha o plano ideal e assine em poucos cliques. Valores de exemplo para o
-            template.
+            Estes planos são exemplos. Clique em assinar pra ver o caminho completo:
+            checkout do Mercado Pago, página de retorno e webhook atualizando o pedido.
           </p>
         </div>
         <PricingCards />
@@ -185,11 +229,11 @@ export function ContactSection() {
             Contato
           </p>
           <h2 className="font-heading text-3xl font-bold tracking-tight text-balance sm:text-4xl">
-            Ainda com dúvidas? Fale com a gente
+            Dúvidas sobre o template?
           </h2>
           <p className="text-muted-foreground text-pretty">
-            Use o formulário para capturar leads reais. Os dados são validados no
-            servidor e salvos no D1.
+            Manda uma mensagem. Esse formulário também vem no template: valida os dados
+            no servidor e salva cada lead no D1.
           </p>
           <ul className="space-y-4">
             <li className="flex gap-3">
@@ -197,9 +241,9 @@ export function ContactSection() {
                 <IconSuporte decorative className="size-5" />
               </span>
               <div>
-                <p className="font-medium">Resposta em até 1 dia útil</p>
+                <p className="font-medium">Respondemos em português</p>
                 <p className="text-muted-foreground text-sm">
-                  Horário comercial, em português.
+                  Mensagens sobre o template e integrações.
                 </p>
               </div>
             </li>
@@ -210,7 +254,8 @@ export function ContactSection() {
               <div>
                 <p className="font-medium">Seus dados protegidos</p>
                 <p className="text-muted-foreground text-sm">
-                  Boas práticas de LGPD no template.
+                  Formulário com aviso de privacidade e dados guardados no seu próprio
+                  banco.
                 </p>
               </div>
             </li>
@@ -234,7 +279,7 @@ export function FaqSection() {
             Perguntas frequentes
           </h2>
           <p className="text-muted-foreground mt-4 text-pretty">
-            Respostas rápidas sobre pagamentos e o template.
+            O que você precisa saber antes de clonar o repositório.
           </p>
         </div>
         <Accordion defaultValue={["item-0"]} className="mt-10 w-full">
