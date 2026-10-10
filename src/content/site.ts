@@ -14,9 +14,9 @@ export const site = {
   },
 
   metadata: {
-    title: "Will They Pay | Template open source de SaaS em Next.js com Pix",
+    title: "Will They Pay | Valide sua ideia de SaaS com lista de espera e pré-venda",
     description:
-      "Template open source para lançar SaaS no Brasil: Next.js 16 na Cloudflare, banco D1, checkout do Mercado Pago com Pix, cartão e boleto, captura de leads e testes.",
+      "Template open source de lista de espera e pré-venda para testar se as pessoas pagam pelo seu SaaS antes de construir. Next.js na Cloudflare, com Pix, cartão e boleto pelo Mercado Pago.",
   },
 
   header: {
@@ -35,13 +35,13 @@ export const site = {
   headerCta: { label: "Ver no GitHub", href: "repoUrl" as const },
 
   hero: {
-    badge: "Open source · Next.js + Cloudflare",
-    title: "O template de SaaS que já nasce cobrando em Pix",
-    titleHighlight: "Pix",
+    badge: "Open source · Lista de espera + pré-venda",
+    title: "Descubra se vão pagar pelo seu SaaS antes de construir",
+    titleHighlight: "pagar",
     subtitle:
-      "Next.js 16 na Cloudflare, banco D1, checkout do Mercado Pago com Pix, cartão e boleto, formulário de leads e testes. Clone, troque os textos e comece a vender.",
+      "Um template open source de lista de espera e pré-venda. Publique a página da sua ideia, junte interessados e aceite reservas pagas em Pix, cartão ou boleto. Se ninguém pagar, você economizou meses.",
     primaryCta: { label: "Ver no GitHub", href: "repoUrl" as const },
-    secondaryCta: { label: "Testar o checkout", href: "/#precos" },
+    secondaryCta: { label: "Testar uma reserva", href: "/#precos" },
     stackLabel: "Vem com",
     stackChips: [
       "Next.js 16",
@@ -51,9 +51,9 @@ export const site = {
       "Tailwind + shadcn",
     ],
     highlights: [
-      "Pix, cartão e boleto pelo Mercado Pago",
+      "Lista de espera com captura de e-mails",
+      "Reservas pagas pelo Mercado Pago",
       "Deploy na Cloudflare Workers",
-      "Testes com Vitest",
     ],
     editHint: "Todos os textos desta página ficam em src/content/site.ts.",
   },
@@ -65,15 +65,16 @@ export const site = {
       installMigrate: "pnpm install && pnpm db:migrate",
       deploy: "pnpm deploy",
       workerPublished: "Worker publicado em meu-saas.workers.dev",
+      webhookConfigured: "Webhook do Mercado Pago configurado",
     },
     migrationSuccessPrefix: "D1:",
-    flowTitle: "Fluxo de pagamento incluso",
+    flowTitle: "Fluxo de validação incluso",
     flowSteps: {
-      checkout: { title: "Checkout", subtitle: "Plano Pro · R$ 97" },
-      pix: { title: "Pix", subtitle: "QR Code gerado" },
-      approved: { title: "Aprovado", subtitle: "Webhook recebido" },
+      waitlist: { title: "Lista de espera", subtitle: "128 interessados" },
+      paidReservation: { title: "Reserva paga", subtitle: "23 reservas em Pix" },
+      validated: { title: "Ideia validada", subtitle: "18% pagaram" },
     },
-    flowFooter: "Páginas de sucesso, pendente e falha já vêm prontas.",
+    flowFooter: "Números de exemplo, só pra ilustrar o fluxo.",
   },
 
   features: {

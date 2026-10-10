@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
 import {
-  IconCartao,
   IconPagamentoAprovado,
   IconPix,
   IconSetaDireita,
+  IconUsuarios,
 } from "@/components/icons";
 import { Card } from "@/components/ui/card";
 import { D1_MIGRATION_COUNT, site } from "@/content/site";
@@ -58,37 +58,32 @@ function FlowStep({
     <div
       className={cn(
         "flex min-w-0 flex-1 flex-col gap-3 rounded-xl p-4",
-        tone === "success" ? "bg-success/80 text-success-foreground" : "bg-muted",
+        tone === "success" ? "bg-success/25" : "bg-muted",
       )}
     >
       <span
         className={cn(
-          "inline-flex size-10 items-center justify-center rounded-lg",
-          tone === "success" ? "bg-background/40" : "bg-background",
+          "inline-flex size-10 items-center justify-center rounded-lg bg-background",
+          tone === "success" && "text-primary",
         )}
       >
         {icon}
       </span>
       <div>
         <p className="font-heading text-sm font-semibold">{title}</p>
-        <p
-          className={cn(
-            "text-xs",
-            tone === "success" ? "text-success-foreground/80" : "text-muted-foreground",
-          )}
-        >
-          {subtitle}
-        </p>
+        <p className="text-muted-foreground text-xs">{subtitle}</p>
       </div>
     </div>
   );
 }
 
 /**
- * Default hero illustration (terminal + checkout flow).
+ * Default hero illustration (terminal + validation flow).
  * Swap this component for a product screenshot when rebranding.
  */
 export function HeroVisual() {
+  const steps = copy.flowSteps;
+
   return (
     <div className="relative mx-auto w-full max-w-xl lg:max-w-none">
       <Card className="overflow-hidden border-0 bg-zinc-950 text-zinc-100 shadow-xl ring-1 ring-white/10">
@@ -106,6 +101,7 @@ export function HeroVisual() {
           </TerminalLine>
           <TerminalLine>{copy.commands.deploy}</TerminalLine>
           <TerminalLine kind="success">{copy.commands.workerPublished}</TerminalLine>
+          <TerminalLine kind="success">{copy.commands.webhookConfigured}</TerminalLine>
           <TerminalLine kind="prompt">
             <span className="animate-pulse">▍</span>
           </TerminalLine>
@@ -117,17 +113,17 @@ export function HeroVisual() {
           <h3 className="font-heading text-base font-semibold">{copy.flowTitle}</h3>
           <div className="mt-4 flex flex-col items-stretch gap-2 sm:flex-row sm:items-center">
             <FlowStep
-              title={copy.flowSteps.checkout.title}
-              subtitle={copy.flowSteps.checkout.subtitle}
-              icon={<IconCartao decorative className="size-5 text-foreground" />}
+              title={steps.waitlist.title}
+              subtitle={steps.waitlist.subtitle}
+              icon={<IconUsuarios decorative className="size-5 text-foreground" />}
             />
             <IconSetaDireita
               decorative
               className="mx-auto hidden size-4 shrink-0 text-muted-foreground sm:block"
             />
             <FlowStep
-              title={copy.flowSteps.pix.title}
-              subtitle={copy.flowSteps.pix.subtitle}
+              title={steps.paidReservation.title}
+              subtitle={steps.paidReservation.subtitle}
               tone="success"
               icon={<IconPix decorative className="size-5" />}
             />
@@ -136,8 +132,8 @@ export function HeroVisual() {
               className="mx-auto hidden size-4 shrink-0 text-muted-foreground sm:block"
             />
             <FlowStep
-              title={copy.flowSteps.approved.title}
-              subtitle={copy.flowSteps.approved.subtitle}
+              title={steps.validated.title}
+              subtitle={steps.validated.subtitle}
               tone="success"
               icon={<IconPagamentoAprovado decorative className="size-5" />}
             />
