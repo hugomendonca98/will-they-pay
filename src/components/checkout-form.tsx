@@ -1,8 +1,12 @@
 "use client";
 
-import { useActionState } from "react";
-import { initialCheckoutFormState, startCheckout } from "@/app/actions/checkout";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Loader2 } from "lucide-react";
+import { useActionState, useEffect, useRef } from "react";
+import { startCheckout } from "@/app/actions/checkout";
+import { initialCheckoutFormState } from "@/app/actions/checkout-state";
+import { CheckoutErrorAlert } from "@/components/checkout-error-alert";
+import { useCheckoutFailureCount } from "@/components/use-checkout-failure-count";
+import { useCheckoutRedirect } from "@/components/use-checkout-redirect";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -14,7 +18,10 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { site } from "@/content/site";
 import { DEMO_PRODUCT } from "@/lib/payments/types";
+
+const checkoutErrorCopy = site.checkout.error;
 
 const priceLabel = new Intl.NumberFormat("pt-BR", {
   style: "currency",
@@ -26,6 +33,24 @@ export function CheckoutForm() {
     startCheckout,
     initialCheckoutFormState,
   );
+  const alertRef = useRef<HTMLDivElement>(null);
+  const [failureCount] = useCheckoutFailureCount(pending, state);
+  useCheckoutRedirect(state);
+
+  const hasError = state.status === "error";
+  const fieldErrors = hasError ? state.fields : undefined;
+
+  useEffect(() => {
+    if (state.status === "error") {
+      alertRef.current?.focus();
+    }
+  }, [state.status, failureCount]);
+
+  const submitLabel = pending
+    ? checkoutErrorCopy.retrying
+    : hasError
+      ? checkoutErrorCopy.retry
+      : `Pagar ${priceLabel}`;
 
   return (
     <Card id="checkout">
@@ -38,11 +63,12 @@ export function CheckoutForm() {
       </CardHeader>
       <form action={formAction}>
         <CardContent className="grid gap-4">
-          {state.status === "error" ? (
-            <Alert variant="destructive">
-              <AlertTitle>Não foi possível ir ao pagamento</AlertTitle>
-              <AlertDescription>{state.message}</AlertDescription>
-            </Alert>
+          {hasError ? (
+            <CheckoutErrorAlert
+              ref={alertRef}
+              failureCount={failureCount}
+              validationMessage={hasError ? state.message : undefined}
+            />
           ) : null}
 
           <div className="grid gap-2">
@@ -52,10 +78,10 @@ export function CheckoutForm() {
               name="name"
               autoComplete="name"
               required
-              aria-invalid={Boolean(state.fields?.name)}
+              aria-invalid={Boolean(fieldErrors?.name)}
             />
-            {state.fields?.name ? (
-              <p className="text-destructive text-sm">{state.fields.name}</p>
+            {fieldErrors?.name ? (
+              <p className="text-destructive text-sm">{fieldErrors.name}</p>
             ) : null}
           </div>
 
@@ -67,16 +93,19 @@ export function CheckoutForm() {
               type="email"
               autoComplete="email"
               required
-              aria-invalid={Boolean(state.fields?.email)}
+              aria-invalid={Boolean(fieldErrors?.email)}
             />
-            {state.fields?.email ? (
-              <p className="text-destructive text-sm">{state.fields.email}</p>
+            {fieldErrors?.email ? (
+              <p className="text-destructive text-sm">{fieldErrors.email}</p>
             ) : null}
           </div>
         </CardContent>
         <CardFooter>
           <Button type="submit" disabled={pending} className="w-full sm:w-auto">
-            {pending ? "Criando preferência..." : `Pagar ${priceLabel}`}
+            {pending ? (
+              <Loader2 className="size-4 animate-spin" aria-hidden />
+            ) : null}
+            {submitLabel}
           </Button>
         </CardFooter>
       </form>

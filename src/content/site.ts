@@ -41,6 +41,25 @@ export const site = {
     linkLabel: "Ver no GitHub",
   },
 
+  checkout: {
+    error: {
+      title: "Não conseguimos abrir o pagamento",
+      description:
+        "Nada foi cobrado e seus dados continuam aqui. Tente de novo em alguns segundos.",
+      retry: "Tentar de novo",
+      retrying: "Abrindo pagamento…",
+      secondFailure: {
+        beforeContact: "Ainda não funcionou. ",
+        contactLabel: "Fale com a gente",
+        contactHref: "/#contato",
+        betweenLinks: " ou ",
+        issuesLabel: "abra uma issue no GitHub",
+        issuesHref: "issuesUrl" as const,
+        afterIssues: ".",
+      },
+    },
+  },
+
   hero: {
     badge: "Open source · Lista de espera + pré-venda",
     title: "Descubra se vão pagar pelo seu SaaS antes de construir",
@@ -126,7 +145,6 @@ export const site = {
         `Informe seus dados para continuar com o pagamento de demonstração (${priceLabel}/mês).`,
       submitIdle: "Continuar para pagamento",
       submitPending: "Redirecionando...",
-      errorTitle: "Não foi possível ir ao pagamento",
       nameLabel: "Nome",
       namePlaceholder: "Seu nome completo",
       emailLabel: "E-mail",

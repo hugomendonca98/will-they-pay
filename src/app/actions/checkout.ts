@@ -1,21 +1,13 @@
 "use server";
 
-import { redirect } from "next/navigation";
 import { getDb } from "@/lib/db/client";
 import { getWorkerEnv, readAppEnv } from "@/lib/env";
-import { MissingSecretError, ValidationError } from "@/lib/errors";
+import type { CheckoutFormState } from "@/app/actions/checkout-state";
 import { parseCheckoutInput } from "@/lib/payments/checkout-schema";
+import { classifyCheckoutError } from "@/lib/payments/classify-checkout-error";
 import { createHttpMercadoPagoClient } from "@/lib/payments/client";
 import { createCheckoutPreference } from "@/lib/payments/service";
 import { resolveCheckoutItem } from "@/lib/payments/types";
-
-export type CheckoutFormState = {
-  status: "idle" | "error";
-  message?: string;
-  fields?: Record<string, string>;
-};
-
-export const initialCheckoutFormState: CheckoutFormState = { status: "idle" };
 
 export async function startCheckout(
   _prev: CheckoutFormState,
@@ -46,45 +38,19 @@ export async function startCheckout(
       { db, payments },
     );
 
-    redirect(checkoutUrl);
+    if (!checkoutUrl?.trim()) {
+      return { status: "error", code: "PAYMENT_PROVIDER_ERROR" };
+    }
+
+    return { status: "redirect", checkoutUrl };
   } catch (error) {
-    if (isNextRedirect(error)) throw error;
-
-    if (error instanceof ValidationError) {
-      return {
-        status: "error",
-        message: "Revise os campos destacados e tente novamente.",
-        fields: error.fields,
-      };
-    }
-
-    if (error instanceof MissingSecretError || isMissingEnvError(error)) {
-      return {
-        status: "error",
-        message:
-          "Pagamentos ainda não estão configurados. Defina as credenciais do gateway em .dev.vars ou como secrets do Worker.",
-      };
-    }
-
-    console.error("Failed to start checkout", error);
+    const classified = classifyCheckoutError(error);
     return {
       status: "error",
-      message:
-        "Não foi possível iniciar o checkout agora. Confira as credenciais e tente novamente.",
+      code: classified.code,
+      message: classified.message,
+      fields: classified.fields,
+      mpStatus: classified.mpStatus,
     };
   }
-}
-
-function isNextRedirect(error: unknown): boolean {
-  return (
-    typeof error === "object" &&
-    error !== null &&
-    "digest" in error &&
-    typeof error.digest === "string" &&
-    error.digest.startsWith("NEXT_REDIRECT")
-  );
-}
-
-function isMissingEnvError(error: unknown): boolean {
-  return error instanceof Error && error.message.startsWith("Missing required");
 }
