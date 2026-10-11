@@ -1,14 +1,18 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { Loader2 } from "lucide-react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import {
   IconCartao,
   IconCadeado,
   IconCheck,
   IconMoedas,
 } from "@/components/icons";
-import { initialCheckoutFormState, startCheckout } from "@/app/actions/checkout";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { startCheckout } from "@/app/actions/checkout";
+import { initialCheckoutFormState } from "@/app/actions/checkout-state";
+import { CheckoutErrorAlert } from "@/components/checkout-error-alert";
+import { useCheckoutFailureCount } from "@/components/use-checkout-failure-count";
+import { useCheckoutRedirect } from "@/components/use-checkout-redirect";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,12 +33,19 @@ import {
 import { cn } from "@/lib/utils";
 
 const pricingCopy = site.pricing;
+const checkoutErrorCopy = site.checkout.error;
 const plans = subscriptionPlans;
 
 function isHighlightedPlan(
   plan: (typeof plans)[number],
 ): plan is (typeof plans)[number] & { highlighted: true; highlightLabel?: string } {
   return "highlighted" in plan && plan.highlighted === true;
+}
+
+function checkoutSubmitLabel(pending: boolean, hasError: boolean): string {
+  if (pending) return checkoutErrorCopy.retrying;
+  if (hasError) return checkoutErrorCopy.retry;
+  return pricingCopy.dialog.submitIdle;
 }
 
 export function PricingCards() {
@@ -45,17 +56,32 @@ export function PricingCards() {
     startCheckout,
     initialCheckoutFormState,
   );
+  const alertRef = useRef<HTMLDivElement>(null);
 
   const open = checkoutPlanId !== null;
+  const [failureCount, resetFailureCount] = useCheckoutFailureCount(pending, state);
+  useCheckoutRedirect(state);
+
   const activePlan = checkoutPlanId ? site.pricing.plans[checkoutPlanId] : null;
   const dialog = pricingCopy.dialog;
+  const hasError = state.status === "error";
+  const fieldErrors = hasError ? state.fields : undefined;
+
+  useEffect(() => {
+    if (state.status === "error") {
+      alertRef.current?.focus();
+    }
+  }, [state.status, failureCount]);
 
   function openCheckout(planId: SubscriptionPlanId) {
     setCheckoutPlanId(planId);
   }
 
   function handleOpenChange(nextOpen: boolean) {
-    if (!nextOpen) setCheckoutPlanId(null);
+    if (!nextOpen) {
+      setCheckoutPlanId(null);
+      resetFailureCount();
+    }
   }
 
   return (
@@ -126,11 +152,12 @@ export function PricingCards() {
                 className="grid gap-4 px-6 py-5"
               >
                 <input type="hidden" name="plan" value={activePlan.id} />
-                {state.status === "error" ? (
-                  <Alert variant="destructive">
-                    <AlertTitle>{dialog.errorTitle}</AlertTitle>
-                    <AlertDescription>{state.message}</AlertDescription>
-                  </Alert>
+                {hasError ? (
+                  <CheckoutErrorAlert
+                    ref={alertRef}
+                    failureCount={failureCount}
+                    validationMessage={hasError ? state.message : undefined}
+                  />
                 ) : null}
                 <div className="grid gap-2">
                   <Label htmlFor="checkout-name">{dialog.nameLabel}</Label>
@@ -140,10 +167,10 @@ export function PricingCards() {
                     autoComplete="name"
                     placeholder={dialog.namePlaceholder}
                     required
-                    aria-invalid={Boolean(state.fields?.name)}
+                    aria-invalid={Boolean(fieldErrors?.name)}
                   />
-                  {state.fields?.name ? (
-                    <p className="text-destructive text-sm">{state.fields.name}</p>
+                  {fieldErrors?.name ? (
+                    <p className="text-destructive text-sm">{fieldErrors.name}</p>
                   ) : null}
                 </div>
                 <div className="grid gap-2">
@@ -155,14 +182,17 @@ export function PricingCards() {
                     autoComplete="email"
                     placeholder={dialog.emailPlaceholder}
                     required
-                    aria-invalid={Boolean(state.fields?.email)}
+                    aria-invalid={Boolean(fieldErrors?.email)}
                   />
-                  {state.fields?.email ? (
-                    <p className="text-destructive text-sm">{state.fields.email}</p>
+                  {fieldErrors?.email ? (
+                    <p className="text-destructive text-sm">{fieldErrors.email}</p>
                   ) : null}
                 </div>
                 <Button type="submit" disabled={pending} className="h-11 w-full">
-                  {pending ? dialog.submitPending : dialog.submitIdle}
+                  {pending ? (
+                    <Loader2 className="size-4 animate-spin" aria-hidden />
+                  ) : null}
+                  {checkoutSubmitLabel(pending, hasError)}
                 </Button>
               </form>
             </>

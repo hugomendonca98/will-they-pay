@@ -311,7 +311,9 @@ Os deploys compartilham um grupo de concorrência para dois pushes não publicar
 
 **Cache Components** — Desligado: habilitar com esta versão do OpenNext pode travar o Worker local. Veja comentários em `next.config.ts`.
 
-**Checkout falha na hora** — Confira tokens de teste reais em `.dev.vars` (não placeholders) e se rodou `pnpm run db:migrate`.
+**Checkout falha na hora** — Confira tokens de teste reais em `.dev.vars` (não placeholders) e se rodou `pnpm run db:migrate`. No Worker em produção, acompanhe os logs com `npx wrangler tail will-they-pay` (substitua pelo nome do Worker em `wrangler.jsonc`). Falhas de checkout registram uma linha JSON com `"event":"checkout_start_failed"`, um `code` estável e, em erros HTTP do Mercado Pago, `mpStatus` (sem secrets).
+
+**Modal de checkout mostra erro de servidor na página inteira** — Em produção, um arquivo `"use server"` só pode exportar funções async. Exportar estado inicial ou outros objetos em `src/app/actions/*.ts` quebra em runtime (`invalid-use-server-value`). Mantenha estado compartilhado em um módulo irmão sem `"use server"` (por exemplo `checkout-state.ts`). O CI roda o guard Vitest em `use-server-exports.test.ts`.
 
 **Webhook não atualiza pedidos** — Confirme URL e secret no painel do Mercado Pago, endpoint HTTPS e acessível publicamente.
 

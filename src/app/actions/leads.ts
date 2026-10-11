@@ -2,15 +2,8 @@
 
 import { getDb } from "@/lib/db/client";
 import { ValidationError } from "@/lib/errors";
+import type { LeadFormState } from "@/app/actions/lead-state";
 import { createLead } from "@/lib/leads/service";
-
-export type LeadFormState = {
-  status: "idle" | "success" | "error";
-  message?: string;
-  fields?: Record<string, string>;
-};
-
-export const initialLeadFormState: LeadFormState = { status: "idle" };
 
 export async function submitLead(
   _prev: LeadFormState,

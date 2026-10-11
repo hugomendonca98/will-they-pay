@@ -14,7 +14,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { initialLeadFormState, submitLead } from "@/app/actions/leads";
+import { submitLead } from "@/app/actions/leads";
+import { initialLeadFormState } from "@/app/actions/lead-state";
 import { site } from "@/content/site";
 
 const formCopy = site.contact.form;
