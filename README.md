@@ -311,7 +311,9 @@ Deploys share a concurrency group so two pushes cannot publish at the same time.
 
 **Cache Components** — Not enabled: enabling Cache Components with this OpenNext version can hang the local Worker. See comments in `next.config.ts`.
 
-**Checkout fails immediately** — Check `.dev.vars` for real test tokens (not placeholders) and that `pnpm run db:migrate` has been run.
+**Checkout fails immediately** — Check `.dev.vars` for real test tokens (not placeholders) and that `pnpm run db:migrate` has been run. On the deployed Worker, stream logs with `npx wrangler tail will-they-pay` (replace with your Worker name from `wrangler.jsonc`). Checkout failures log a single JSON line with `"event":"checkout_start_failed"` plus a stable `code` and, for Mercado Pago HTTP errors, `mpStatus` (no secrets).
+
+**Checkout modal shows a full-page server error** — In production, a `"use server"` file must only export async functions. Exporting initial form state or other objects from `src/app/actions/*.ts` throws at runtime (`invalid-use-server-value`). Keep shared state in a sibling module without `"use server"` (for example `checkout-state.ts`). CI runs a Vitest guard in `use-server-exports.test.ts`.
 
 **Webhook never updates orders** — Confirm the URL and secret in the Mercado Pago panel match production, and that the endpoint is HTTPS and publicly reachable.
 
