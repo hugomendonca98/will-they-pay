@@ -48,11 +48,42 @@ jobs:
       - name: Test
         run: pnpm run test
 
+  build:
+    name: production build
+    needs: quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    concurrency:
+      group: ci-build-${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Next.js production build
+        run: pnpm run build
+
+      - name: OpenNext Cloudflare build
+        run: pnpm exec opennextjs-cloudflare build
+
   deploy:
     name: Deploy to Cloudflare Workers
-    needs: quality
+    needs: [quality, build]
     if: >-
       needs.quality.result == 'success' &&
+      needs.build.result == 'success' &&
       github.ref == 'refs/heads/main' &&
       (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest

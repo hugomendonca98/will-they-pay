@@ -11,8 +11,8 @@ describe("createLead", () => {
 
     const lead = await createLead(
       {
-        name: "  Hugo  ",
-        email: "Hugo@Example.com",
+        name: "  Ana Demo  ",
+        email: "Ana.Demo@Example.com",
         phone: "+55 11 99999-0000",
         message: "Quero o plano starter",
       },
@@ -25,8 +25,8 @@ describe("createLead", () => {
 
     expect(lead).toMatchObject({
       id: "lead-1",
-      name: "Hugo",
-      email: "hugo@example.com",
+      name: "Ana Demo",
+      email: "ana.demo@example.com",
       phone: "+55 11 99999-0000",
       message: "Quero o plano starter",
       createdAt: 1_700_000_000_000,
@@ -34,7 +34,7 @@ describe("createLead", () => {
 
     const stored = await db.select().from(leads).where(eq(leads.id, "lead-1"));
     expect(stored).toHaveLength(1);
-    expect(stored[0]?.email).toBe("hugo@example.com");
+    expect(stored[0]?.email).toBe("ana.demo@example.com");
   });
 
   it("accepts optional phone and message as empty strings", async () => {

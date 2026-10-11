@@ -22,7 +22,7 @@ describe("createCheckoutPreference", () => {
 
     const result = await createCheckoutPreference(
       {
-        customer: { name: "Hugo", email: "hugo@example.com" },
+        customer: { name: "Ana Demo", email: "ana.demo@example.com" },
         item: { ...DEMO_PRODUCT },
         appUrl: "http://localhost:3000",
         sandbox: true,
@@ -50,7 +50,7 @@ describe("createCheckoutPreference", () => {
 
     const result = await createCheckoutPreference(
       {
-        customer: { email: "hugo@example.com" },
+        customer: { email: "ana.demo@example.com" },
         item: { ...DEMO_PRODUCT },
         appUrl: "https://example.com",
         sandbox: false,
@@ -92,8 +92,8 @@ describe("processPaymentWebhook", () => {
       amountCents: 1000,
       currency: "BRL",
       title: "Plano Starter",
-      payerEmail: "hugo@example.com",
-      payerName: "Hugo",
+      payerEmail: "ana.demo@example.com",
+      payerName: "Ana Demo",
       preferenceId: "pref-test-1",
       checkoutUrl: "https://sandbox.mercadopago.com.br/x",
       createdAt: clock.now(),
