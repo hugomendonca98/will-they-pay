@@ -223,6 +223,21 @@ Preços dos planos demo estão em `src/content/site.ts` (`site.pricing.plans`); 
 
 Para publicar a cada push na `main` em vez de rodar estes passos localmente, veja [Deploy automático](#deploy-automático-na-cloudflare-workers).
 
+## Depois de usar este template
+
+Ao criar um repositório com **Use this template**, troque valores do repositório upstream antes do primeiro deploy:
+
+1. **URLs de marketing e links do GitHub** — Em `src/content/site.ts`, ajuste `repoUrl` e `issuesUrl` para o seu repositório (e CTAs que usam `href: "repoUrl"` / `"issuesUrl"`).
+2. **Nome do Worker na Cloudflare (três lugares, sempre iguais)** — Em `wrangler.jsonc`:
+   - `"name"` na raiz (nome do script do Worker),
+   - `services[0].service` em `WORKER_SELF_REFERENCE` (deve coincidir com o nome do Worker),
+   - `d1_databases[0].database_name` (nome lógico do D1; em geral o mesmo string do Worker).
+   Depois de `pnpm wrangler d1 create <seu-nome>`, coloque o `database_id` que o Wrangler imprimir (ou mantenha o placeholder só para uso local).
+3. **`APP_URL`** — Local: `http://localhost:3000` em `.dev.vars` (copiado de `.dev.vars.example`). Em produção: origem HTTPS sem barra final em `vars` no `wrangler.jsonc` (e a mesma URL no painel de webhooks do Mercado Pago).
+4. **Secrets do Mercado Pago** — Nunca commite tokens. Local: `MERCADOPAGO_ACCESS_TOKEN` e `MERCADOPAGO_WEBHOOK_SECRET` em `.dev.vars`. Produção: `pnpm wrangler secret put` no seu Worker.
+5. **Auto-deploy no GitHub (opcional)** — O deploy no CI só roda em push na `main` quando existem `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` e `D1_DATABASE_ID` como secrets, mais `APP_URL` como variable. Forks/clones **sem** secrets da Cloudflare ignoram o deploy (workflow verde). Para desligar o deploy no seu repo mantendo secrets para outro uso, defina a variable `CLOUDFLARE_AUTO_DEPLOY` como `false`.
+6. **Marca** — Substitua arquivos em `public/brand/` e atualize `site.brand` em `src/content/site.ts`. Ajuste cores em `src/app/globals.css` se quiser.
+
 ## Personalizar marca e conteúdo
 
 | O quê | Onde |
@@ -264,9 +279,18 @@ Em todo push na `main` e em pull requests:
 
 Este job não precisa de credenciais Mercado Pago ou Cloudflare.
 
+### Build de produção
+
+Depois que as verificações de qualidade passam, um job separado roda em todo push e pull request:
+
+- `pnpm run build`
+- `pnpm exec opennextjs-cloudflare build`
+
+Não exige secrets. Isso pega falhas de build de produção que lint/typecheck/testes podem não detectar.
+
 ### Deploy automático na Cloudflare Workers
 
-Depois que o job de qualidade **passa**, o job de deploy roda **só em push na `main`** (não em pull requests). Ele é **ignorado** (o workflow continua verde) quando os secrets da Cloudflare no GitHub não existem — o comportamento esperado em forks e clones.
+Depois que os jobs de qualidade e build de produção **passam**, o job de deploy roda **só em push na `main`** (não em pull requests). Ele é **ignorado** (o workflow continua verde) quando os secrets da Cloudflare no GitHub não existem — o comportamento esperado em forks e clones.
 
 **Não** coloque tokens do Mercado Pago no GitHub. Continue usando `pnpm wrangler secret put` no Worker. Deploys do Wrangler nunca apagam Worker secrets (`MERCADOPAGO_ACCESS_TOKEN`, `MERCADOPAGO_WEBHOOK_SECRET`).
 
@@ -318,6 +342,8 @@ Os deploys compartilham um grupo de concorrência para dois pushes não publicar
 **Webhook não atualiza pedidos** — Confirme URL e secret no painel do Mercado Pago, endpoint HTTPS e acessível publicamente.
 
 **`ERR_PNPM_NOTHING_TO_DEPLOY` no deploy** — Você usou o `deploy` embutido do pnpm, não o script do projeto. Use `pnpm run deploy`.
+
+**`pnpm audit` aponta `braces` (high)** — O advisory afeta uma cadeia só de desenvolvimento (`eslint-config-next` → `fast-glob` → `micromatch` → `braces`). A versão mais recente do `braces` no npm ainda é sinalizada; não há release corrigido upstream por enquanto. Runtime e Workers em produção não são afetados.
 
 ## Contribuir
 

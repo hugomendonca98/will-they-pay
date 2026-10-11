@@ -8,6 +8,12 @@
     "node": ">=22"
   },
   "packageManager": "pnpm@10.33.3",
+  "pnpm": {
+    "overrides": {
+      "miniflare>sharp": "0.35.5",
+      "sharp": "0.35.5"
+    }
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -64,6 +70,6 @@
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^5.0.3",
-    "wrangler": "^4.148.0"
+    "wrangler": "^4.149.0"
   }
 }

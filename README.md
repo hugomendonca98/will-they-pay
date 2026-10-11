@@ -223,6 +223,21 @@ Demo plan prices are defined in `src/content/site.ts` (`site.pricing.plans`); th
 
 To publish on every push to `main` instead of running these steps locally, see [Automatic deploy](#automatic-deploy-to-cloudflare-workers).
 
+## After using this template
+
+When you create a repo from **Use this template**, replace upstream-specific values before your first deploy:
+
+1. **Marketing URLs and GitHub links** — In `src/content/site.ts`, set `repoUrl` and `issuesUrl` to your repository (and any other `href: "repoUrl"` / `"issuesUrl"` CTAs you keep).
+2. **Cloudflare Worker name (three places, keep them in sync)** — In `wrangler.jsonc`:
+   - top-level `"name"` (Worker script name),
+   - `services[0].service` under `WORKER_SELF_REFERENCE` (must match the Worker name),
+   - `d1_databases[0].database_name` (logical D1 name; usually the same string as the Worker).
+   After `pnpm wrangler d1 create <your-name>`, set `database_id` to the UUID Wrangler prints (or keep the placeholder for local-only work).
+3. **`APP_URL`** — Local: `http://localhost:3000` in `.dev.vars` (from `.dev.vars.example`). Deployed: HTTPS origin with no trailing slash in `wrangler.jsonc` `vars` (and match it in the Mercado Pago webhook panel).
+4. **Mercado Pago secrets** — Never commit tokens. Local: `MERCADOPAGO_ACCESS_TOKEN` and `MERCADOPAGO_WEBHOOK_SECRET` in `.dev.vars`. Production: `pnpm wrangler secret put` on your Worker.
+5. **GitHub auto-deploy (optional)** — CI deploy runs only on push to `main` when all of `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, and `D1_DATABASE_ID` are set, plus `APP_URL` as a variable. Forks/clones with **no** Cloudflare secrets skip deploy (green workflow). To disable deploy on your repo while keeping secrets for other uses, set GitHub variable `CLOUDFLARE_AUTO_DEPLOY` to `false`.
+6. **Brand assets** — Replace files under `public/brand/` and update paths in `site.brand` (`src/content/site.ts`). Adjust colors in `src/app/globals.css` if needed.
+
 ## Customize branding and copy
 
 | What | Where |
@@ -264,9 +279,18 @@ On every push to `main` and on pull requests:
 
 No Mercado Pago or Cloudflare credentials are required for this job.
 
+### Production build
+
+After quality checks pass, a separate job runs on every push and pull request:
+
+- `pnpm run build`
+- `pnpm exec opennextjs-cloudflare build`
+
+No secrets are required. This catches production-only build failures that lint/typecheck/tests might miss.
+
 ### Automatic deploy to Cloudflare Workers
 
-After the quality job **passes**, a deploy job runs **only on push to `main`** (not on pull requests). It is **skipped** (the workflow stays green) when the Cloudflare GitHub secrets are missing — that is expected for forks and clones.
+After the quality and production build jobs **pass**, a deploy job runs **only on push to `main`** (not on pull requests). It is **skipped** (the workflow stays green) when the Cloudflare GitHub secrets are missing — that is expected for forks and clones.
 
 Do **not** put Mercado Pago tokens in GitHub. Keep using `pnpm wrangler secret put` on the Worker. Wrangler deploys never delete Worker secrets (`MERCADOPAGO_ACCESS_TOKEN`, `MERCADOPAGO_WEBHOOK_SECRET`).
 
@@ -318,6 +342,8 @@ Deploys share a concurrency group so two pushes cannot publish at the same time.
 **Webhook never updates orders** — Confirm the URL and secret in the Mercado Pago panel match production, and that the endpoint is HTTPS and publicly reachable.
 
 **`ERR_PNPM_NOTHING_TO_DEPLOY` when deploying** — You ran pnpm’s built-in `deploy` instead of the package script. Use `pnpm run deploy`.
+
+**`pnpm audit` reports `braces` (high)** — The advisory affects a dev-only dependency chain (`eslint-config-next` → `fast-glob` → `micromatch` → `braces`). npm’s latest `braces` release is still flagged; there is no upstream patched version yet. Runtime and deployed Workers are unaffected.
 
 ## Contributing
 
